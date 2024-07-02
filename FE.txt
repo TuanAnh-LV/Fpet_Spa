@@ -1,0 +1,297 @@
+import axios from 'axios';
+import { createContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+export const ShopContext = createContext(null);
+
+const ShopContextProvider = (props) => {
+  const [cartItems, setCartItems] = useState({});
+  const [products, setProducts] = useState([]);
+  const isLoggedIn = useSelector((state) => state.auth.login?.currentUser);
+  const [userId, setUserId] = useState(null);
+  const [cartId, setCartId] = useState(null);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setUserId(isLoggedIn.userId);
+      fetchCartId(isLoggedIn.userId);
+    } else {
+      setCartItems({});
+      setCartId(null);
+    }
+  }, [isLoggedIn]);
+
+
+  const fetchCartId = async (userId) => {
+    try {
+      const response = await axios.get(`https://fpetspa.azurewebsites.net/api/CartDetail/Getbyid`, {
+        params: { userId: userId }
+      });
+  
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+        const firstCartItem = response.data[0]; // Giả sử tất cả các mục trong mảng có cùng cartId
+        const fetchedCartId = firstCartItem.cartId;
+      
+
+
+        // Tạo đối tượng cartItems từ dữ liệu API
+        const cartItemsFromAPI = {};
+        response.data.forEach(item => {
+          cartItemsFromAPI[item.productId] = item.quantity;
+        });
+        setCartItems(cartItemsFromAPI);
+        
+      
+        setCartId(fetchedCartId)
+      } else {
+        console.error('No cart details found for the user.');
+      }
+    } catch (error) {
+      console.error('Error fetching cartId:', error);
+    }
+  };
+
+  console.log(cartItems)
+  const addToCart = async (productId, quantity) => {
+    try {
+      const updatedCartItems = { ...cartItems };
+      
+      if (updatedCartItems[productId]) {
+        updatedCartItems[productId] += quantity;
+      } else {
+        updatedCartItems[productId] = quantity;
+      }
+
+      setCartItems(updatedCartItems); // Update cartItems immediately
+      console.log(updatedCartItems)
+      if (isLoggedIn) {
+        const response = await axios.post(`https://fpetspa.azurewebsites.net/api/Cart/AddtoCart`, {
+          userId: userId,
+          productId: productId,
+          quantity: quantity
+        });
+        if (response.data) {
+          setCartId(response.data);
+          console.log(response.data)
+        }
+        console.log('Response from adding to cart:', response);
+      }
+
+      toast.success('Product added to cart successfully!');
+    } catch (error) {
+      handleCartError(error);
+    }
+  };
+
+  const removeFromCart = async (productIdToRemove) => {
+    try {
+      if (!contextValue.cartId) {
+        throw new Error('Cart ID is missing.');
+      }
+  
+      if (cartItems[productIdToRemove] > 0) {
+        const updatedCartItems = { ...cartItems };
+        updatedCartItems[productIdToRemove] = 0;
+        delete updatedCartItems[productIdToRemove];
+        setCartItems(updatedCartItems); // Update cartItems immediately
+  
+        try {
+          const response = await axios.delete(`https://fpetspa.azurewebsites.net/api/CartDetail/Delete`, {
+            params: { cartId: contextValue.cartId, productId: productIdToRemove }
+          });
+          console.log('Response from deleting cart detail:', response);
+       
+        } catch (error) {
+          console.error('Error deleting cart detail:', error);
+          toast.error('Failed to delete cart detail. Please try again.');
+        }
+  
+        toast.success('Product removed from cart successfully!');
+      } else {
+        toast.error('This product is not in the cart to remove.');
+      }
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      toast.error('Failed to remove product from cart. Please try again.');
+    }
+  };
+  
+
+  const getTotalCartAmount = () => {
+    let totalAmount = 0;
+    for (const itemId in cartItems) {
+      if (cartItems[itemId] > 0) {
+        const itemInfo = products.find((product) => product.productId === itemId);
+        if (itemInfo) {
+          totalAmount += itemInfo.price * cartItems[itemId];
+        }
+      }
+    }
+    return parseFloat(totalAmount.toFixed(2));
+  };
+
+  const getTotalCartItems = () => {
+    let totalItems = 0;
+    for (const itemId in cartItems) {
+      if (cartItems[itemId] > 0) {
+        totalItems += cartItems[itemId];
+      }
+    }
+    return totalItems;
+  };
+
+  const handleCartError = (error) => {
+    if (error.response) {
+      console.error('Error adding/removing to/from cart - Server error:', error.response.data);
+      toast.error('Failed to update cart. Please try again.');
+    } else if (error.request) {
+      console.error('Error adding/removing to/from cart - No response received:', error.request);
+      toast.error('No response from server. Please check your network connection.');
+    } else {
+      console.error('Error adding/removing to/from cart - Request setup error:', error.message);
+      toast.error('An unexpected error occurred. Please try again later.');
+    }
+  };
+
+  const contextValue = {
+    getTotalCartItems,
+    getTotalCartAmount,
+    products,
+    cartItems,
+    addToCart,
+    removeFromCart,
+    cartId,
+  };
+
+  return (
+    <ShopContext.Provider value={contextValue}>
+      {props.children}
+    </ShopContext.Provider>
+  );
+};  
+
+ShopContextProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+export default ShopContextProvider;
+cách nào để cập nhật được products khi addToCart sản phẩm sẽ cập nhật ngay lập tức chứ không phải làm mới trang mới cập nhật. tôi đã rất nhiều lần về câu hỏi này nhưng những câu trả lời đó điều không fix được và đây là // eslint-disable-next-line no-unused-vars
+import React, { useContext } from 'react';
+import { useSelector } from 'react-redux';
+import { ShopContext } from '../Context/ShopContext';
+import { Link } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+const CartItem = () => {
+  const {
+    getTotalCartAmount,
+    cartItems,
+    removeFromCart,
+    addToCart,
+    loading,
+    error,
+    products,
+  } = useContext(ShopContext);
+
+  const isLoggedIn = useSelector((state) => state.auth.login?.currentUser);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
+const cartProducts = Array.isArray(products) ? products.filter(product => cartItems[product.productId] > 0) : [];
+console.log(cartProducts);
+  return (
+    <div className="bg-gray-100 min-h-screen py-8 flex flex-col">
+      <div className="container mx-auto px-4 flex-1">
+        <h1 className="text-2xl font-semibold mb-4">Shopping Cart</h1>
+        {Object.keys(cartItems).length === 0 ? (
+          <p>Your cart is empty. <Link to="/product" style={{ color: 'red', textDecoration: 'underline' }}>Shop now</Link></p>
+        ) : (
+          <div className="flex flex-col md:flex-row gap-4 flex-1">
+            <div className="md:w-3/4">
+              <div className="bg-white rounded-lg shadow-md p-6 mb-4 overflow-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr>
+                      <th className="text-left font-semibold">Product</th>
+                      <th className="text-left font-semibold">Price</th>
+                      <th className="text-left font-semibold">Quantity</th>
+                      <th className="text-left font-semibold">Total</th>
+                      <th className="text-left font-semibold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cartProducts.map((product) => (
+                      <tr key={product.productId}>
+                        <td className="py-4">
+                          <div className="flex items-center">
+                            <img className="h-24 w-32 mr-4" src={product.pictureName} alt={product.name} />
+                            <span className="font-semibold">{product.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-4">${product.price}</td>
+                        <td className="py-4">
+                          <div className="flex items-center">
+                            <button
+                              className="border rounded-md py-2 px-4 mr-2"
+                              onClick={() => addToCart(product.productId, -1)}
+                              disabled={cartItems[product.productId] <= 1}
+                            >-</button>
+                            <span className="text-center w-1">{cartItems[product.productId]}</span>
+                            <button
+                              className="border rounded-md py-2 px-4 ml-2"
+                              onClick={() => addToCart(product.productId, 1)}
+                            >+</button>
+                          </div>
+                        </td>
+                        <td className="py-4">${product.price * cartItems[product.productId]}</td>
+                        <td className="py-4"><DeleteIcon className="cursor-pointer" onClick={() => removeFromCart(product.productId)} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="md:w-1/4">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-lg font-semibold mb-4">Summary</h2>
+                <div className="flex justify-between mb-2">
+                  <span>Subtotal</span>
+                  <span>${getTotalCartAmount()}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span>Taxes</span>
+                  <span>${getTotalCartAmount()}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span>Shipping</span>
+                  <span>$0.00</span>
+                </div>
+                <hr className="my-2" />
+                <div className="flex justify-between mb-2">
+                  <span className="font-semibold">Total</span>
+                  <span className="font-semibold">${getTotalCartAmount()}</span>
+                </div>
+                {isLoggedIn ? (
+                  <Link to='/checkout'><button className="bg-blue-500 text-white py-2 px-4 rounded mt-4">Checkout</button></Link>
+                ) : (
+                  <Link to="/login" className="bg-red-500 text-white py-2 px-4 rounded mt-4">Login to Checkout</Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CartItem;
