@@ -52,7 +52,7 @@ export const loginUser = (user, dispatch, navigate) => {
 export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
-      await axios.post("https://fpetspa.azurewebsites.net/api/account/signup/customer", user);
+      await axios.post(`https://fpetspa.azurewebsites.net/api/account/signup/customer`, user);
       dispatch(registerSuccess());
       navigate("/check-email", { state: { message: "Please check your email to confirm your registration." } });
   } catch (error) {
@@ -66,20 +66,20 @@ export const registerUser = async (user, dispatch, navigate) => {
 
 
 export const signInWithGoogle = async (googleUser, dispatch, navigate) => {
-  dispatch(loginStart());
-  try {
-      const res = await axios.get("https://fpetspa.azurewebsites.net/api/account/login-google", googleUser, {
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          withCredentials: true
-      });
-      dispatch(loginSuccess(res.data));
-      navigate("/");
-  } catch (error) {
-      console.log(error);
-      dispatch(loginFailed());
-  }
+    dispatch(loginStart());
+    try {
+        const res = await axios.post(`https://fpetspa.azurewebsites.net/api/account/login-google`, googleUser, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+        dispatch(loginSuccess(res.data));
+        navigate("/");
+    } catch (error) {
+        console.log(error);
+        dispatch(loginFailed());
+    }
 };
 
 
@@ -87,14 +87,14 @@ export const signInWithGoogle = async (googleUser, dispatch, navigate) => {
 
 export const logoutUser = async (
     accessToken,
-    id,
+    userId,
     dispatch,
     navigate,
     axiosJWT
 ) => {
     dispatch(logoutStart());
     try {
-        await axiosJWT.post("https://fpetspa.azurewebsites.net/api/account/log-out", id, {
+        await axiosJWT.post(`https://fpetspa.azurewebsites.net/api/account/log-out`, userId, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         dispatch(logoutSuccess());
@@ -106,29 +106,3 @@ export const logoutUser = async (
 // https://localhost:7055/api/account/log-out
 // https://fpetspa.azurewebsites.net/api/account/log-out
 
-
-export const addToCart = async (userId, productId, quantity) => {
-  try {
-    const response = await axios.post('https://localhost:7055/api/Cart', {
-      userId,
-      productId,
-      quantity
-    });
-    return response.data; 
-  } catch (error) {
-    throw new Error('Failed to add item to cart');
-  }
-};
-
-export const removeFromCart = async (cartId) => {
-  try {
-    const response = await axios.delete('https://localhost:7055/api/Cart', {
-      data: {
-        cartId
-      }
-    });
-    return response.data; // Assuming the response contains the updated cart data
-  } catch (error) {
-    throw new Error('Failed to remove item from cart');
-  }
-};

@@ -21,7 +21,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.login?.currentUser);
-  const id = user?._id;
+  const userId = user?._userId;
   const accessToken = user?.accessToken;
   let axiosJWT = createAxiosInstance(user, dispatch, logoutSuccess);
   const { getTotalCartItems } = useContext(ShopContext) || {
@@ -40,7 +40,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    logoutUser(accessToken, id, dispatch, navigate, axiosJWT)
+    logoutUser(accessToken, userId, dispatch, navigate, axiosJWT)
       .then(() => {
         toast.success("Logout successful!");
       })
