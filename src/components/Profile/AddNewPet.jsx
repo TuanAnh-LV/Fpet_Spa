@@ -1,10 +1,6 @@
-
-import PropTypes from 'prop-types';
-
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 
-const AddNewPet = ({ newPetInfo, setNewPetInfo, handleSaveNewPetInfo, handleCancel }) => {
+const AddNewPet = ({ newPetInfo, setNewPetInfo, imageFile, setImageFile, handleSaveNewPetInfo, handleCancel }) => {
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -15,7 +11,10 @@ const AddNewPet = ({ newPetInfo, setNewPetInfo, handleSaveNewPetInfo, handleCanc
     });
   };
 
-
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file);
+  };
 
   const validate = () => {
     let formErrors = {};
@@ -31,13 +30,17 @@ const AddNewPet = ({ newPetInfo, setNewPetInfo, handleSaveNewPetInfo, handleCanc
     if (!newPetInfo.petType || newPetInfo.petType.trim() === "") {
       formErrors.petType = "Loại vật nuôi là bắt buộc.";
     } else if (!nameTypeRegex.test(newPetInfo.petType)) {
-      formErrors.petType = "Loại vật nuôi chỉ được chứa chữ cái và khoảng trắng.";
+      formErrors.petType = "Loại vật nuôi chỉ được chứa chữ cái.";
+    }
+
+    if (!newPetInfo.petGender || !["Male", "Female"].includes(newPetInfo.petGender)) {
+      formErrors.petGender = "Giới tính vật nuôi là bắt buộc.";
     }
 
     if (!newPetInfo.petWeight || newPetInfo.petWeight.trim() === "") {
       formErrors.petWeight = "Cân nặng vật nuôi là bắt buộc.";
     } else if (isNaN(newPetInfo.petWeight) || Number(newPetInfo.petWeight) < 0) {
-      formErrors.petWeight = "Cân nặng vật nuôi phải là một số không âm.";
+      formErrors.petWeight = "Cân nặng vật nuôi phải là một số nguyên.";
     }
 
     setErrors(formErrors);
@@ -72,12 +75,13 @@ const AddNewPet = ({ newPetInfo, setNewPetInfo, handleSaveNewPetInfo, handleCanc
               name="petGender"
               value={newPetInfo.petGender}
               onChange={handleChange}
-              className="border border-gray-300 rounded px-2 py-1"
+              className={`border ${errors.petGender ? 'border-red-500' : 'border-gray-300'} rounded px-2 py-1`}
             >
               <option value="">Chọn giới tính</option>
               <option value="Male">Đực</option>
               <option value="Female">Cái</option>
             </select>
+            {errors.petGender && <p className="text-red-500 text-xs">{errors.petGender}</p>}
 
             <label className="text-sm font-normal">Loại vật nuôi:</label>
             <input
@@ -119,14 +123,5 @@ const AddNewPet = ({ newPetInfo, setNewPetInfo, handleSaveNewPetInfo, handleCanc
     </div>
   );
 };
-
-AddNewPet.propTypes = {
-  newPetInfo: PropTypes.func.isRequired,
-  setNewPetInfo: PropTypes.func.isRequired,
-  handleCancel: PropTypes.func.isRequired,
-  handleSaveNewPetInfo: PropTypes.func.isRequired,
-
-};
-
 
 export default AddNewPet;

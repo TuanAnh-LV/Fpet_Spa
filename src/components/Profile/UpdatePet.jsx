@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 
 const UpdatePet = ({ pet, handleUpdatePet, handleCancelUpdate }) => {
   const [updatedPetInfo, setUpdatedPetInfo] = useState({
@@ -87,14 +85,6 @@ const UpdatePet = ({ pet, handleUpdatePet, handleCancelUpdate }) => {
       </div>
     </div>
   );
-};
-
-UpdatePet.propTypes = {
-  product: PropTypes.func.isRequired,
-  pet: PropTypes.func.isRequired,
-  handleCancelUpdate: PropTypes.func.isRequired,
-  handleUpdatePet: PropTypes.func.isRequired
-
 };
 
 export default UpdatePet;

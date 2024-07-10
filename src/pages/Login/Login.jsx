@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUser, signInWithGoogle } from "../../redux/apiRequest";
+import { loginUser } from "../../redux/apiRequest";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -17,10 +17,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { assets } from "../../assets/assets";
 import './Login.css'; 
-import { useGoogleLogin } from '@react-oauth/google';
-
+import { loginStart,loginSuccess,loginFailed } from "../../redux/authSlice";
 const defaultTheme = createTheme();
-
+import {jwtDecode} from "jwt-decode";
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -85,40 +84,48 @@ function Login() {
         }));
     };
 
-    const googleLogin = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            try {
-                const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                    headers: {
-                        Authorization: `Bearer ${tokenResponse.access_token}`,
-                    },
-                }).then(response => response.json());
-    
-                const googleUser = {
-                    fullName: userInfo.name,
-                    email: userInfo.email,
-                    googleId: userInfo.sub,
-                    accessToken: tokenResponse.access_token,
-                };
-    
-                signInWithGoogle(googleUser, dispatch, navigate)
-                    .then(() => {
-                        toast.success("Login with Google successful!");
-                    })
-                    .catch((error) => {
-                        toast.error("Google login failed. Please try again.");
-                        console.error("Google login error:", error);
-                    });
-            } catch (error) {
-                toast.error("Failed to fetch Google user info.");
-                console.error("Failed to fetch Google user info:", error);
-            }
-        },
-        onError: (error) => {
-            toast.error("Google login failed. Please try again.");
-            console.error("Google login error:", error);
-        },
-    });
+    const googleLogin = () => { 
+        window.location.href = 'https://fpetspa.azurewebsites.net/api/account/login-google';
+    };
+
+    useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const fullName = urlParams.get('FullName');
+    const refreshToken = urlParams.get('RefreshToken');
+
+    if (token && fullName && refreshToken) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken["jti"];
+
+        if (userId) {
+          const googleUser = {
+            fullName: fullName,
+            accessToken: token,
+            refreshToken: refreshToken,
+            userId: userId
+          };
+          console.log("Google User:", googleUser); 
+
+          dispatch(loginStart());
+          dispatch(loginSuccess(googleUser));
+          navigate('/');
+        } else {
+          console.error('Unable to decode user ID from token:', decodedToken);
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    } else {
+      const error = urlParams.get('error');
+      if (error) {
+        toast.error('Failed to login with Google');
+        dispatch(loginFailed());
+      }
+    }
+  }, [dispatch, navigate]);
+
 
     return (
         <ThemeProvider theme={defaultTheme}>

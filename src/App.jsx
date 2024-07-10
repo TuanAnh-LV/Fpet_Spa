@@ -23,6 +23,12 @@ import Profile from "./pages/Profile/Profile";
 import DashBoard from "./pages/DashBoard/DashBoard";
 import Checkout from "./components/Checkout/Checkout";
 import NotFound from "./pages/NotFound/NotFound";
+import GetService from "./components/DashBoard/ServiceManagement.jsx/GetService";
+import AddOrder from "./components/DashBoard/ServiceManagement.jsx/AddOrder";
+import Layout from "./components/Layout";
+import User from "./components/DashBoard/User";
+import GetProduct from "./components/DashBoard/ProductManage.jsx/GetProduct";
+import PaymentSuccess from "./components/Checkout/PaymentSuccess";
 
 const App = () => {
   const [showNavbarAndFooter, setShowNavbarAndFooter] = useState(true);
@@ -46,10 +52,11 @@ const App = () => {
       "/confirm-email",
       "/check-email",
       "/dashboard",
+      "/payment-success"
     ];
 
     const isMatched = routes.some((route) => matchPath(route, location.pathname));
-    setShowNavbarAndFooter(isMatched && !location.pathname.includes("/dashboard"));
+    setShowNavbarAndFooter(isMatched && !location.pathname.includes("/dashboard") && !location.pathname.includes("/layout"));
   }, [location.pathname]);
 
   return (
@@ -74,12 +81,20 @@ const App = () => {
           <Route path="/booking" element={<BookingService />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route
             path="/productdisplay/:productName"
             element={<ProductDisplay />}
           />
           <Route path="/confirm-email" element={<ConfirmEmail />} />
           <Route path="/check-email" element={<CheckEmail />} />
+
+          <Route path="/layout" element={<Layout />}>
+            <Route path="add-order/:orderId" element={<AddOrder />} />
+            <Route path="service-info" element={<GetService />} />
+            <Route path="account-info" element={<User />} />
+            <Route path="product-info" element={<GetProduct />} />
+          </Route>
 
           {/* DashBoard */}
           <Route path="/dashboard" element={<DashBoard />} />

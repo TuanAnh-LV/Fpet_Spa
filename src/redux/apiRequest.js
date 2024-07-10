@@ -64,23 +64,25 @@ export const registerUser = async (user, dispatch, navigate) => {
 //https://localhost:7055/api/account/signup/customer
 // /https://fpetspa.azurewebsites.net/api/account/signup/customer
 
-
-export const signInWithGoogle = async (googleUser, dispatch, navigate) => {
+export const signInWithGoogle = async (googleUser, dispatch) => {
     dispatch(loginStart());
     try {
-        const res = await axios.post(`https://fpetspa.azurewebsites.net/api/account/login-google`, googleUser, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            withCredentials: true
-        });
-        dispatch(loginSuccess(res.data));
-        navigate("/");
+        // Chuyển hướng người dùng đến URL đăng nhập Google
+        window.location.href = 'https://fpetspa.azurewebsites.net/api/account/login-google';
+        // dispatch và navigate sẽ không được thực hiện vì người dùng đã được chuyển hướng
+        const googleUser = {
+            token,
+            fullName,
+            refreshToken
+        }
+        dispatch(loginSuccess());
     } catch (error) {
         console.log(error);
         dispatch(loginFailed());
     }
 };
+
+
 
 
 

@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
 import React from "react";
-import PropTypes from 'prop-types';
 
 const DeletePet = ({ petId, handleDeletePet, handleCancelDelete }) => {
   const confirmDelete = () => {
@@ -8,11 +6,11 @@ const DeletePet = ({ petId, handleDeletePet, handleCancelDelete }) => {
   };
 
   return (
-    <div className="delete-pet-modal">
-      <div className="delete-pet-content">
+    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
         <h2 className="text-xl font-semibold mb-4">Xác nhận xóa vật nuôi</h2>
         <p>Bạn có chắc chắn muốn xóa vật nuôi này không?</p>
-        <div className="modal-actions mt-4">
+        <div className="flex justify-end mt-4">
           <button
             className="px-4 py-2 bg-red-500 text-white rounded-md mr-2"
             onClick={confirmDelete}
@@ -29,12 +27,6 @@ const DeletePet = ({ petId, handleDeletePet, handleCancelDelete }) => {
       </div>
     </div>
   );
-};
-DeletePet.propTypes = {
-  petId: PropTypes.func.isRequired,
-  handleCancelDelete: PropTypes.func.isRequired,
-  handleDeletePet: PropTypes.func.isRequired,
-
 };
 
 export default DeletePet;

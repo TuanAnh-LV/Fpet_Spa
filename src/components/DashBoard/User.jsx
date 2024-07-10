@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -10,7 +9,7 @@ const User = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get('https://fpetspa.azurewebsites.net/api/account/GetAllCustomer');
-        setUsers(response.data); // Assuming response.data.$values contains the array of users
+        setUsers(response.data); 
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -40,9 +39,8 @@ const User = () => {
           <table className="min-w-full bg-white border border-gray-200">
             <thead>
               <tr className="bg-gray-100">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gmail</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               </tr>
             </thead>
             <tbody>
@@ -50,7 +48,6 @@ const User = () => {
                 <tr key={user.id} className="border-b border-gray-200">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.fullName}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.gmail}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.userName}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -90,9 +89,10 @@ const PetProfile = () => {
         newPetInfo,
         config
       );
-      console.log(response)
+
       setShowPopup(false);
       fetchPetData();
+
       // Hiển thị thông báo thành công
       setNotification({
         message: "Đăng ký thông tin vật nuôi thành công!",
