@@ -113,11 +113,10 @@ const App = () => {
             <Route path="/layout/product-info" element={<GetProduct />} />
             <Route path="/layout/add-product" element={<AddProduct />} />
            
-            
+          
           </Route>
 
-
-          {/* DashBoard */}
+        {/* DashBoard */}
           <Route path="/dashboard/*" element={<DashBoard />} />
 
           {/* Đường dẫn không khớp */}

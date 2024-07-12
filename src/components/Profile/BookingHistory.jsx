@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
 const API_BASE_URL = "https://fpetspa.azurewebsites.net/api";
 
@@ -45,7 +46,8 @@ const BookingHistory = () => {
               };
             }
             return order;
-          });
+          })
+          .sort((a, b) => b.orderId.localeCompare(a.orderId)); // Sắp xếp các đơn hàng theo orderId mới nhất
 
         setOrders(ordersData);
       } catch (error) {
@@ -60,7 +62,6 @@ const BookingHistory = () => {
   }, [currentUser]);
 
   const isDateExpired = (requiredDate) => {
-    // Chỉnh logic kiểm tra hết hạn ở đây (ví dụ: so sánh với ngày hiện tại)
     const currentDate = new Date();
     const required = new Date(requiredDate);
     return currentDate > required;
@@ -111,11 +112,7 @@ const BookingHistory = () => {
   });
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center">
-        <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error) {
@@ -207,7 +204,7 @@ const BookingHistory = () => {
                       <button
                         onClick={() => handleOpenDeleteModal(order)}
                         className="text-red-600 hover:text-red-900">
-                        Xóa
+                        Delete
                       </button>
                     )}
                   </td>
@@ -223,18 +220,18 @@ const BookingHistory = () => {
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-md shadow-lg">
             <p className="text-lg font-semibold mb-4">
-              Bạn có chắc chắn muốn hủy đơn hàng?
+              Are you sure you want to cancel your order?
             </p>
             <div className="flex justify-end">
               <button
                 onClick={handleDeleteOrder}
                 className="bg-red-500 text-white px-4 py-2 rounded mr-4 hover:bg-red-600">
-                Xác nhận
+                Accept
               </button>
               <button
                 onClick={handleCancelDelete}
                 className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-200">
-                Hủy bỏ
+                Cancle
               </button>
             </div>
           </div>

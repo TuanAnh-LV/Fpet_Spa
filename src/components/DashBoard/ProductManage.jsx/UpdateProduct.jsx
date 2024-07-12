@@ -13,6 +13,7 @@ const UpdateProduct = ({ product, closeModal, onUpdate }) => {
   });
 
   const [thumbnailUrl, setThumbnailUrl] = useState(product.pictureName || assets.avatar);
+  const [file, setFile] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,10 +23,34 @@ const UpdateProduct = ({ product, closeModal, onUpdate }) => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFile(file);
+      setThumbnailUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('productName', updatedProduct.productName);
+    formData.append('productDescription', updatedProduct.productDescription);
+    formData.append('productQuantity', updatedProduct.productQuantity);
+    formData.append('price', updatedProduct.price);
+    formData.append('categoryID', updatedProduct.categoryID);
+
+    if (file) {
+      formData.append('file', file);
+    }
+
     try {
-      await axios.put(`https://fpetspa.azurewebsites.net/api/products/${product.productId}`, updatedProduct);
+      await axios.put(`https://fpetspa.azurewebsites.net/api/products/${product.productId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       alert('Product updated successfully!');
       onUpdate(updatedProduct);
       closeModal();
@@ -51,6 +76,13 @@ const UpdateProduct = ({ product, closeModal, onUpdate }) => {
                   className="w-40 h-40 border rounded-md shadow-sm"
                 />
               </label>
+              <input
+                type="file"
+                id="file-input"
+                accept="image/png, image/jpeg"
+                className="hidden"
+                onChange={handleFileChange}
+              />
               <p className="text-sm text-gray-500 mt-2 text-center">
                 Product thumbnail image. Only *.png, *.jpg and *.jpeg image files are accepted.
               </p>

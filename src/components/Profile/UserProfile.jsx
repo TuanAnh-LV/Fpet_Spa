@@ -11,8 +11,6 @@ const UserProfile = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Current User from Redux State:", user);
-
     const fetchUserDetails = async () => {
       try {
         const response = await axios.get(
@@ -21,12 +19,10 @@ const UserProfile = () => {
             headers: { Authorization: `Bearer ${user.accessToken}` },
           }
         );
-        console.log("API Response:", response.data);
-
-        // Ensure user.userId is used correctly
+        console.log(response.data); // Ghi log phản hồi API để kiểm tra dữ liệu
+  
         const currentUser = response.data.find((customer) => customer.id === user.userId);
-        console.log("Matched Customer (should match Current User from Redux State):", currentUser);
-
+  
         if (currentUser) {
           setFullName(currentUser.fullName);
           setEmail(currentUser.email);
@@ -37,14 +33,14 @@ const UserProfile = () => {
         alert("Failed to fetch user details. Please try again.");
       }
     };
-
+  
     if (user) {
       fetchUserDetails();
     }
   }, [user]);
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><Loading/></div>;
   }
 
   return (

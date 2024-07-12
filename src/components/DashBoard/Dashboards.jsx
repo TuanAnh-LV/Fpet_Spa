@@ -1,40 +1,41 @@
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, Line } from "react-chartjs-2";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  PointElement,
+  LineElement,
+} from "chart.js";
+
+// Đăng ký các thành phần của ChartJS
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement);
 
 const Dashboards = () => {
-  const data = [
-    {
-      name: "1",
-      Expense: 3490,
-      Income: 4300,
-    },
-    {
-      name: "2",
-      Expense: 3490,
-      Income: 4300,
-    },
-    {
-      name: "3",
-      Expense: 3490,
-      Income: 4300,
-    },
-  ];
-
   const [currentMonthRevenue, setCurrentMonthRevenue] = useState(null);
   const [previousMonthRevenue, setPreviousMonthRevenue] = useState(null);
   const [percentChange, setPercentChange] = useState(null);
   const [orderCount, setOrderCount] = useState(null);
   const [salesThisMonth, setSalesThisMonth] = useState(null);
+
+  const [lineData, setLineData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: "Sales",
+        fill: false,
+        lineTension: 0.1,
+        backgroundColor: "#17C653",
+        borderColor: "#17C653",
+        data: [],
+      },
+    ],
+  });
 
   const goal = 100;
 
@@ -45,13 +46,16 @@ const Dashboards = () => {
       const currentMonth = currentDate.getMonth() + 1;
       const previousMonthDate = new Date(currentYear, currentMonth - 2, 1);
       const currentDateFormatted = `${currentMonth}-${currentDate.getDate()}-${currentYear}`;
-      const previousMonthDateFormatted = `${previousMonthDate.getMonth() + 1}-1-${previousMonthDate.getFullYear()}`;
+      const previousMonthDateFormatted = `${
+        previousMonthDate.getMonth() + 1
+      }-1-${previousMonthDate.getFullYear()}`;
       return { currentDateFormatted, previousMonthDateFormatted };
     };
 
     const fetchRevenueData = async () => {
       try {
-        const { currentDateFormatted, previousMonthDateFormatted } = getCurrentAndPreviousMonthDates();
+        const { currentDateFormatted, previousMonthDateFormatted } =
+          getCurrentAndPreviousMonthDates();
         const response = await axios.get(
           `https://fpetspa.azurewebsites.net/api/DashBoard/compare-revenue`,
           {
@@ -70,6 +74,23 @@ const Dashboards = () => {
           setPreviousMonthRevenue(data.month1);
           const change = ((data.month2 - data.month1) / data.month1) * 100;
           setPercentChange(change.toFixed(2));
+
+          const currentMonthLabel = `(${new Date().toLocaleDateString('en-US', { month: 'short' })})`;
+          const previousMonthLabel = `(${new Date(previousMonthDateFormatted).toLocaleDateString('en-US', { month: 'short' })})`;
+          // Cập nhật dữ liệu biểu đồ dòng
+          setLineData({
+            labels: [previousMonthLabel, currentMonthLabel],
+            datasets: [
+              {
+                label: "Revenue",
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "#17C653",
+                borderColor: "#17C653",
+                data: [data.month1, data.month2],
+              },
+            ],
+          });
         }
       } catch (error) {
         console.error("Error fetching revenue data:", error);
@@ -102,10 +123,25 @@ const Dashboards = () => {
   const orderProgress = orderCount !== null ? (orderCount / goal) * 100 : 0;
   const remainingOrders = goal - (orderCount || 0);
 
+  const barData = {
+    labels: ["Apr", "May", "Jun", "Jul"],
+    datasets: [
+      {
+        label: "Expense",
+        backgroundColor: "#f44336",
+        data: [3490, 3000, 2000, 967.01
+        ],
+      },
+      
+    ],
+  };
+
   return (
     <div className="bg-[#FCFCFC]">
       <div>
-        <h1 className="text-[17.55px] text-[#071437] font-semibold">Fpet Dashboard</h1>
+        <h1 className="text-[17.55px] text-[#071437] font-semibold">
+          Fpet Dashboard
+        </h1>
       </div>
 
       <div className="flex">
@@ -119,7 +155,7 @@ const Dashboards = () => {
                   <span className="text-[35.239px] text-[#071437] font-semibold mr-[6.500px]">
                     {orderCount !== null ? orderCount : "Loading..."}
                   </span>
-                  <span className="w-[55.612px] h-[23.4px] py-[4.225px] px-[6.5px] leading-[13px] text-[13px] text-nowrap font-semibold text-[#F8285A] bg-[#FFEEF3] rounded-md">
+                  <span className="w-[55.612px] h-[23.4px] py-[4.225px] px-[6.5px] leading-[13px] text-[13px] text-nowrap	 font-semibold text-[#F8285A] bg-[#FFEEF3] rounded-md">
                     - 2.2%
                   </span>
                 </div>
@@ -144,7 +180,8 @@ const Dashboards = () => {
                   <div className="w-full bg-gray-200 rounded-md h-2">
                     <div
                       className="bg-[#17C653] h-2 rounded-md"
-                      style={{ width: `${orderProgress}%` }}></div>
+                      style={{ width: `${orderProgress}%` }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -168,7 +205,8 @@ const Dashboards = () => {
                     percentChange !== null && percentChange < 0
                       ? "text-[#F8285A]"
                       : "text-[#0ACF83]"
-                  } bg-[#FFEEF3] rounded-md`}>
+                  } bg-[#FFEEF3] rounded-md`}
+                >
                   {percentChange !== null ? `${percentChange}%` : "Loading..."}
                 </span>
               </div>
@@ -184,7 +222,7 @@ const Dashboards = () => {
           <div className="">
             <h3 className="w-[579.25px] h-[56.600px] flex flex-col items-start px-[29.250px] ">
               <span className="text-[16.575px] font-semibold text-gray-900">
-                Sales This Month
+                Total Sales
               </span>
               <span className="mt-[3.250px] text-[13.975px] text-gray-500 font-medium">
                 Users from all channels
@@ -204,27 +242,22 @@ const Dashboards = () => {
                   : "Loading..."}
               </span>
             </div>
-            <span className="text-[13.975px] font-medium">Sales</span>
+            {/* <span className="text-[13.975px] font-medium">Sales</span> */}
           </div>
 
           {/* Transactions chart */}
-          <div className="h-[300px] mt-[24px] bg-white p-4 rounded-sm border border-gray-200">
-            <strong className="text-gray-700 font-medium text-lg mb-2">
-              Transactions
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <strong className="text-lg font-semibold text-blue-900">
+              Total Orders
             </strong>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="Income" fill="#4caf50" />
-                <Bar dataKey="Expense" fill="#f44336" />
-              </BarChart>
-            </ResponsiveContainer>
+            <Line data={lineData} />
+          </div>
+
+          {/* Income vs Expense chart */}
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <strong className="text-lg font-semibold text-blue-900">
+            </strong>
+            <Bar data={barData} />
           </div>
         </div>
       </div>
@@ -232,4 +265,4 @@ const Dashboards = () => {
   );
 };
 
-export default Dashboards;
+export default Dashboards;``

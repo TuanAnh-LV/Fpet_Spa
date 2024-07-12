@@ -1,12 +1,10 @@
-// eslint-disable-next-line no-unused-vars
 import React from "react";
 
-// eslint-disable-next-line react/prop-types
 const SidebarProfile = ({ setActiveSection }) => {
 
 
   return (
-    <div className="h-screen w-64 bg-gray-800 text-white">
+    <div className="min-h-screen  w-64 bg-gray-800 text-white">
       <div className="p-4 font-bold text-lg border-b border-gray-700">
         <img src="" alt="" />
       </div>
