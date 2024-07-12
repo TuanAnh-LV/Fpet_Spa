@@ -8,6 +8,19 @@ const AddOrder = () => {
   const [totalCost, setTotalCost] = useState(0); // State để lưu tổng giá của các sản phẩm đã chọn
   const { orderId } = useParams();
 
+  useEffect(() => {
+    // Fetch products or any necessary data based on orderId
+    axios.get(`https://fpetspa.azurewebsites.net/api/Order/GetOrderById/${orderId}`)
+      .then(response => {
+        // Handle response and set products
+        setProducts(response.data.products);
+      })
+      .catch(error => {
+        // Handle error
+        console.error('Error fetching products:', error);
+      });
+  }, [orderId]);
+
   // Hàm fetch dữ liệu sản phẩm từ API
   const fetchData = async () => {
     try {
@@ -25,19 +38,15 @@ const AddOrder = () => {
     fetchData();
   }, []);
 
-  // Xử lý sự kiện khi tích chọn checkbox sản phẩm
   const handleCheckboxChange = (productId) => {
     const index = selectedProducts.indexOf(productId);
     if (index === -1) {
-      // Nếu sản phẩm chưa có trong danh sách đã chọn, thêm vào
       setSelectedProducts([...selectedProducts, productId]);
     } else {
-      // Nếu sản phẩm đã có trong danh sách đã chọn, loại bỏ
       setSelectedProducts(selectedProducts.filter((id) => id !== productId));
     }
   };
 
-  // Tính tổng giá của các sản phẩm đã chọn
   useEffect(() => {
     let total = 0;
     selectedProducts.forEach((productId) => {
@@ -51,46 +60,53 @@ const AddOrder = () => {
     setTotalCost(total);
   }, [selectedProducts, products]);
 
-  // Hàm gửi dữ liệu lên server khi nhấn nút "Save Changes"
   const handleSaveChanges = async () => {
     try {
       const payload = {
-        orderId: orderId,
-        products: selectedProducts.map(productId => ({
+        orderId: orderId, // This will be used in the URL
+        products: Array.from(selectedProducts).map((productId) => ({
           productId: productId,
-          quantity: 1, 
-          discount: 0, 
+          quantity: 1,
+          discount: 0.0,
         })),
       };
   
-      console.log("Payload:", payload);
+      const productList = payload.products.map((product) => ({
+        ...product,
+        quantity: Number(product.quantity),
+        discount: Number(product.discount),
+      }));
   
       const response = await axios.post(
-        'https://fpetspa.azurewebsites.net/api/Order/AddMoreProductToServicesBooking',
-        payload,
+        `https://fpetspa.azurewebsites.net/api/Order/AddMANYProductToServicesBooking?orderId=${payload.orderId}`,
+        productList,
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-      console.log('Response from server:', response.data);
-    } catch (error) {
-      console.error('Error saving data:', error);
-      if (error.response) {
-        // Server responded with a status other than 200 range
-        console.error('Server Response:', error.response.data);
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error('Request Data:', error.request);
+  
+      console.log("Response from server:", response.data);
+      const paymentUrl = response.data;
+
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
       } else {
-        // Something happened in setting up the request
-        console.error('Error Message:', error.message);
+        console.error("Không tìm thấy URL thanh toán trong phản hồi");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error saving data:", error);
+      if (error.response) {
+        console.error("Server Response:", error.response.data);
+      } else if (error.request) {
+        console.error("Request Data:", error.request);
+      } else {
+        console.error("Error Message:", error.message);
       }
     }
   };
-  
-  
 
   return (
     <div className="lg:mx-[159px]">
@@ -256,7 +272,7 @@ const AddOrder = () => {
                       width: 7px;
                     }
                     .custom-scrollbar::-webkit-scrollbar-thumb {
-                      background-color: #F1F1F4;
+                      background-color: #f1f1f4;
                       border-radius: 1px;
                     }
                   `}</style>

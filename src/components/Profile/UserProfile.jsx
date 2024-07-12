@@ -11,6 +11,8 @@ const UserProfile = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log("Current User from Redux State:", user);
+
     const fetchUserDetails = async () => {
       try {
         const response = await axios.get(
@@ -19,13 +21,16 @@ const UserProfile = () => {
             headers: { Authorization: `Bearer ${user.accessToken}` },
           }
         );
+        console.log("API Response:", response.data);
 
-        const customer = response.data.find((customer) => customer._id === user._id);
+        // Ensure user.userId is used correctly
+        const currentUser = response.data.find((customer) => customer.id === user.userId);
+        console.log("Matched Customer (should match Current User from Redux State):", currentUser);
 
-        if (customer) {
-          setFullName(customer.fullName);
-          setEmail(customer.email);
-          setPhoneNumber(customer.phoneNumber);
+        if (currentUser) {
+          setFullName(currentUser.fullName);
+          setEmail(currentUser.email);
+          setPhoneNumber(currentUser.phoneNumber);
         }
       } catch (err) {
         setError(err.message);

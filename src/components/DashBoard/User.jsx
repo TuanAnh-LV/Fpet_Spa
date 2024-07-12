@@ -40,6 +40,7 @@ const User = () => {
             <thead>
               <tr className="bg-gray-100">
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               </tr>
             </thead>
@@ -47,6 +48,7 @@ const User = () => {
               {users.map(user => (
                 <tr key={user.id} className="border-b border-gray-200">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.fullName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.phoneNumber}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.gmail}</td>
                 </tr>
               ))}

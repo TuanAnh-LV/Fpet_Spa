@@ -1,7 +1,7 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useState,useEffect } from "react";
+// Login.js
+import React, { useState, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/apiRequest";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import Button from '@mui/material/Button';
@@ -17,9 +17,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { assets } from "../../assets/assets";
 import './Login.css'; 
-import { loginStart,loginSuccess,loginFailed } from "../../redux/authSlice";
-const defaultTheme = createTheme();
+import { loginStart, loginSuccess, loginFailed } from "../../redux/authSlice";
 import {jwtDecode} from "jwt-decode";
+
+const defaultTheme = createTheme();
+
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -27,6 +29,8 @@ function Login() {
     const [errors, setErrors] = useState({});
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const loginState = useSelector((state) => state.auth.login);
+    const errorState = useSelector((state) => state.auth.error);
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -84,48 +88,48 @@ function Login() {
         }));
     };
 
-    const googleLogin = () => { 
+    const googleLogin = () => {
         window.location.href = 'https://fpetspa.azurewebsites.net/api/account/login-google';
-    };
-
-    useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const fullName = urlParams.get('FullName');
-    const refreshToken = urlParams.get('RefreshToken');
-
-    if (token && fullName && refreshToken) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const userId = decodedToken["jti"];
-
-        if (userId) {
-          const googleUser = {
-            fullName: fullName,
-            accessToken: token,
-            refreshToken: refreshToken,
-            userId: userId
-          };
-          console.log("Google User:", googleUser); 
-
-          dispatch(loginStart());
-          dispatch(loginSuccess(googleUser));
-          navigate('/');
+      };
+    
+      useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const fullName = urlParams.get('FullName');
+        const refreshToken = urlParams.get('RefreshToken');
+    
+        if (token && fullName && refreshToken) {
+          try {
+            const decodedToken = jwtDecode(token);
+            const userId = decodedToken["jti"];
+    
+            if (userId) {
+              const googleUser = {
+                fullName: fullName,
+                accessToken: token,
+                refreshToken: refreshToken,
+                userId: userId
+                
+              };
+              console.log("Google User:", googleUser);
+    
+              dispatch(loginStart());
+              dispatch(loginSuccess(googleUser));
+              navigate('/');
+            } else {
+              console.error('Unable to decode user ID from token:', decodedToken);
+            }
+          } catch (error) {
+            console.error('Error decoding token:', error);
+          }
         } else {
-          console.error('Unable to decode user ID from token:', decodedToken);
+          const error = urlParams.get('error');
+          if (error) {
+            toast.error('Failed to login with Google');
+            dispatch(loginFailed());
+          }
         }
-      } catch (error) {
-        console.error('Error decoding token:', error);
-      }
-    } else {
-      const error = urlParams.get('error');
-      if (error) {
-        toast.error('Failed to login with Google');
-        dispatch(loginFailed());
-      }
-    }
-  }, [dispatch, navigate]);
-
+      }, [dispatch, navigate]);
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -205,13 +209,13 @@ function Login() {
                             </Button>
                             <Grid container justifyContent="space-between">
                                 <Grid item>
-                                    <RouterLink to="/forgot-password" variant="body2" className="link">
-                                        Forgot Password?
+                                    <RouterLink to="/forgot-password" variant="body2">
+                                        Forgot password?
                                     </RouterLink>
                                 </Grid>
                                 <Grid item>
-                                    <RouterLink to="/register" variant="body2" className="link">
-                                        Dont have an account?<span className="text-blue-800 underline">Sign Up</span>
+                                    <RouterLink to="/register" variant="body2">
+                                        {"Don't have an account? Sign Up"}
                                     </RouterLink>
                                 </Grid>
                             </Grid>
@@ -222,11 +226,11 @@ function Login() {
                                     <path d="M4.16852 9.53356C3.83341 8.53999 3.83341 7.46411 4.16852 6.47054V4.40991H1.51116C0.376489 6.67043 0.376489 9.33367 1.51116 11.5942L4.16852 9.53356Z" fill="#FBBC04"></path>
                                     <path d="M8.65974 3.16644C9.80029 3.1488 10.9026 3.57798 11.7286 4.36578L14.0127 2.08174C12.5664 0.72367 10.6469 -0.0229773 8.65974 0.000539111C5.63494 0.000539111 2.86882 1.70548 1.51074 4.40987L4.1681 6.4705C4.8001 4.57449 6.57266 3.16644 8.65974 3.16644Z" fill="#EA4335"></path>
                                     </g><defs><clipPath id="clip0_1156_824"><rect width="16" height="16" fill="white" transform="translate(0.5)"></rect></clipPath></defs></svg><span>Sign in With Google</span></button>
+                            <ToastContainer position="top-right" autoClose={3000} hideProgressBar newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
                         </Box>
                     </Box>
                 </Grid>
             </Grid>
-            <ToastContainer />
         </ThemeProvider>
     );
 }

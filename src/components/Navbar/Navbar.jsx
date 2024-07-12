@@ -132,7 +132,9 @@ const Navbar = () => {
               <MenuItem onClick={handleClose}>
                 <Link to="/profile">Profile</Link>
               </MenuItem>
-              <MenuItem onClick={handleClose}>My Account</MenuItem>
+              <MenuItem onClick={handleClose}>
+                <Link to="/booking-history">Booking history</Link>
+              </MenuItem>
               <MenuItem onClick={handleClose}>
                 <Link
                   to="/logout"

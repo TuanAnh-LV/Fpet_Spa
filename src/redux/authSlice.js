@@ -1,10 +1,11 @@
+// authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     login: {
-      currentUser: null, // Đặt null làm giá trị mặc định
+      currentUser: null,
       isFetching: false,
       error: false,
     },
@@ -26,13 +27,12 @@ const authSlice = createSlice({
       state.login.isFetching = false;
       state.login.error = false;
       state.login.currentUser = action.payload;
-      console.log("Reducer loginSuccess payload:", action.payload); // Thêm log để kiểm tra payload
+      console.log("Reducer loginSuccess payload:", action.payload);
     },
     loginFailed: (state) => {
       state.login.isFetching = false;
       state.login.error = true;
     },
-
     registerStart: (state) => {
       state.register.isFetching = true;
     },
@@ -46,7 +46,6 @@ const authSlice = createSlice({
       state.register.error = true;
       state.register.success = false;
     },
-
     logoutStart: (state) => {
       state.logout.isFetching = true;
     },
@@ -54,7 +53,6 @@ const authSlice = createSlice({
       state.logout.isFetching = false;
       state.logout.error = false;
       state.login.currentUser = null;
-      state.cartItems = {};
     },
     logoutFailed: (state) => {
       state.logout.isFetching = false;

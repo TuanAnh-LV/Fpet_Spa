@@ -36,50 +36,57 @@ console.log(cartProducts);
           <p>Your cart is empty. <Link to="/product" style={{ color: 'red', textDecoration: 'underline' }}>Shop now</Link></p>
         ) : (
           <div className="flex flex-col md:flex-row gap-4 flex-1">
-            <div className="md:w-3/4">
-              <div className="bg-white rounded-lg shadow-md p-6 mb-4 overflow-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr>
-                      <th className="text-left font-semibold">Product</th>
-                      <th className="text-left font-semibold">Price</th>
-                      <th className="text-left font-semibold">Quantity</th>
-                      <th className="text-left font-semibold">Total</th>
-                      <th className="text-left font-semibold">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cartProducts.map((product) => (
-                      <tr key={product.productId}>
-                        <td className="py-4">
-                          <div className="flex items-center">
-                            <img className="h-24 w-32 mr-4" src={product.pictureName} alt={product.name} />
-                            <span className="font-semibold">{product.name}</span>
-                          </div>
-                        </td>
-                        <td className="py-4">${product.price}</td>
-                        <td className="py-4">
-                          <div className="flex items-center">
-                            <button
-                              className="border rounded-md py-2 px-4 mr-2"
-                              onClick={() => addToCart(product.productId, -1)}
-                              disabled={cartItems[product.productId] <= 1}
-                            >-</button>
-                            <span className="text-center w-1">{cartItems[product.productId]}</span>
-                            <button
-                              className="border rounded-md py-2 px-4 ml-2"
-                              onClick={() => addToCart(product.productId, 1)}
-                            >+</button>
-                          </div>
-                        </td>
-                        <td className="py-4">${product.price * cartItems[product.productId]}</td>
-                        <td className="py-4"><DeleteIcon className="cursor-pointer" onClick={() => removeFromCart(product.productId)} /></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <div className="container mx-auto">
+                  <div className="md:w-full mx-auto">
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-4 overflow-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr>
+                            <th className="text-left font-semibold">Product</th>
+                            <th className="text-left font-semibold">Price</th>
+                            <th className="text-left font-semibold">Quantity</th>
+                            <th className="text-left font-semibold">Total</th>
+                            <th className="text-left font-semibold">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {cartProducts.map((product) => (
+                            <tr key={product.productId}>
+                              <td className="py-4">
+                                <div className="flex items-center">
+                                  <img className="h-32 min-w-36 mr-4" src={product.pictureName} alt={product.name} />
+                                  <span className="font-semibold">{product.name}</span>
+                                </div>
+                              </td>
+                              <td className="py-4">${product.price}</td>
+                              <td className="py-4">
+                                <div className="flex items-center">
+                                  <button
+                                    className="border rounded-md py-2 px-2 mr-2"
+                                    onClick={() => addToCart(product.productId, -1)}
+                                    disabled={cartItems[product.productId] <= 1}
+                                  >-</button>
+                                  <span className="text-center w-1">{cartItems[product.productId]}</span>
+                                  <button
+                                    className="border rounded-md py-2 px-2 ml-2"
+                                    onClick={() => addToCart(product.productId, 1)}
+                                  >+</button>
+                                </div>
+                              </td>
+                              <td className="py-4">${product.price * cartItems[product.productId]}</td>
+                              <td className="py-4">
+                                <DeleteIcon className="cursor-pointer" onClick={() => removeFromCart(product.productId)} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    </div>
+                  </div>
+
+            
+
             <div className="md:w-1/4">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-lg font-semibold mb-4">Summary</h2>
@@ -106,9 +113,9 @@ console.log(cartProducts);
                   <Link to="/login" className="bg-red-500 text-white py-2 px-4 rounded mt-4">Login to Checkout</Link>
                 )}
               </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

@@ -237,7 +237,7 @@ export default function ProductList() {
                                   <h4 className="font-bold text-gray-800">{product?.productName || 'Unknown Product'}</h4>
                                 </div>
                                 <div className="flex justify-between items-center mt-3">
-                                  <span className="ordernow-text text-[#d13a3a] font-semibold group-hover:text-gray-800">${product?.price * 2 || 'N/A'}</span>
+                                  <span className="ordernow-text text-[#d13a3a] font-semibold group-hover:text-gray-800">${product?.price}</span>
                                   <button
                                     className="btun4 lg:inline-flex items-center gap-3 group-hover:bg-white/10 bg-[#abd373] shadow-[10px_10px_150px_#ff9f0d] cursor-pointer py-2 px-4 text-sm font-semibold rounded-full butn h-6"
                                     onClick={() => product?.productId && addToCart(product.productId, 1)}

@@ -3,10 +3,19 @@ import { Link } from "react-router-dom";
 import { assets } from "../../assets/assets";
 
 const Sidebar = () => {
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showServicesDropdown, setShowServicesDropdown] = useState(false);
+  const [showBookingDropdown, setShowBookingDropdown] = useState(false);
+  const [showProductDropdown,setshowProductDropdown] = useState(false);
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
+  const toggleServicesDropdown = () => {
+    setShowServicesDropdown(!showServicesDropdown);
+  };
+
+  const toggleBookingDropdown = () => {
+    setShowBookingDropdown(!showBookingDropdown);
+  };
+  const toggleProductDropdown = () => {
+    setshowProductDropdown(!showProductDropdown);
   };
 
   return (
@@ -17,44 +26,94 @@ const Sidebar = () => {
       </div>
       <ul className="mt-2">
         <li className="p-4 text-[#9A9CAE] text-[13.975px] font-medium cursor-pointer hover:text-white">
-          <Link to="/layout/account-info">Customer</Link>
+          <Link to="/layout/dashboards">Dashboards</Link>
         </li>
         <li className="p-4 text-[#9A9CAE] text-[13.975px] font-medium cursor-pointer hover:text-white">
-          <Link to="/layout/product-info">Catalog</Link>
+          <Link to="/layout/account-info">Customer</Link>
+        </li>
+
+        <li className="relative">
+          <div
+            className="p-4 text-[#9A9CAE] text-[13.975px] font-medium cursor-pointer hover:text-white flex justify-between items-center"
+            onClick={toggleProductDropdown}>
+            Product Manager
+            <svg
+              className={`transform transition-transform duration-300 ${
+                showProductDropdown ? "rotate-180" : ""
+              }`}
+              width="12"
+              height="12"
+              viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 14l-8-8h16z" />
+            </svg>
+          </div>
+          {showProductDropdown && (
+            <ul className="bg-neutral-900 text-[#9A9CAE] mt-1 text-[13.975px] font-medium transform transition-transform duration-500">
+              <li className="p-4 cursor-pointer hover:text-white">
+                <Link to="/layout/product-info">Product</Link>
+              </li>
+              <li className="p-4 cursor-pointer hover:text-white">
+                <Link to="/layout/add-product">Add Product</Link>
+              </li>
+             
+            </ul>
+          )}
+        </li>
+
+        <li className="relative">
+          <div
+            className="p-4 text-[#9A9CAE] text-[13.975px] font-medium cursor-pointer hover:text-white flex justify-between items-center"
+            onClick={toggleServicesDropdown}>
+            Services Management
+            <svg
+              className={`transform transition-transform duration-300 ${
+                showServicesDropdown ? "rotate-180" : ""
+              }`}
+              width="12"
+              height="12"
+              viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 14l-8-8h16z" />
+            </svg>
+          </div>
+          {showServicesDropdown && (
+            <ul className="bg-neutral-900 text-[#9A9CAE] mt-1 text-[13.975px] font-medium transform transition-transform duration-500">
+              <li className="p-4 cursor-pointer hover:text-white">
+                <Link to="/layout/view-service">Services</Link>
+              </li>
+              <li className="p-4 cursor-pointer hover:text-white">
+                <Link to="/layout/add-service">Add Service</Link>
+              </li>
+              <li className="p-4 cursor-pointer hover:text-white">
+                <Link to="/layout/edit-service/:servicesId">Edit Service</Link>
+              </li>
+            </ul>
+          )}
         </li>
         <li className="relative">
           <div
             className="p-4 text-[#9A9CAE] text-[13.975px] font-medium cursor-pointer hover:text-white flex justify-between items-center"
-            onClick={toggleDropdown}
-          >
+            onClick={toggleBookingDropdown}>
             Booking Management
             <svg
               className={`transform transition-transform duration-300 ${
-                showDropdown ? "rotate-180" : ""
+                showBookingDropdown ? "rotate-180" : ""
               }`}
               width="12"
               height="12"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <path fill="currentColor" d="M12 14l-8-8h16z" />
             </svg>
           </div>
-          {showDropdown && (
+          {showBookingDropdown && (
             <ul className="bg-neutral-900 text-[#9A9CAE] mt-1 text-[13.975px] font-medium transform transition-transform duration-500">
               <li className="p-4 cursor-pointer hover:text-white">
                 <Link to="/layout/service-info">Booking Listing</Link>
-              </li>
-              <li className="p-4 cursor-pointer hover:text-white">
-                <Link to="/layout/add-order">Add Order</Link>
-              </li>
-              <li className="p-4 cursor-pointer hover:text-white">
-                <Link to="/layout/edit-order">Edit Order</Link>
               </li>
             </ul>
           )}
         </li>
         <li className="p-4 text-[#9A9CAE] text-[13.975px] font-medium cursor-pointer hover:text-white">
-          <Link to="/layout/order-management">Quản lý đơn hàng</Link>
+          <Link to="/layout/order-management">Order management</Link>
         </li>
         <li className="p-4 text-[#9A9CAE] text-[13.975px] font-medium cursor-pointer hover:text-white">
           <Link to="/layout/transaction">Transaction</Link>

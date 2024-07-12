@@ -17,7 +17,9 @@ const OrderManagement = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            const data = await response.json();
+            let data = await response.json();
+            // Sắp xếp đơn hàng từ ngày mới nhất đến cũ nhất
+            data.sort((a, b) => new Date(b.requiredDate) - new Date(a.requiredDate));
             setOrders(data);
         } catch (error) {
             setError(error.message);

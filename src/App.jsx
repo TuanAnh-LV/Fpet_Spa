@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import { Route, Routes, useLocation, matchPath } from "react-router-dom";
@@ -29,6 +28,14 @@ import Layout from "./components/Layout";
 import User from "./components/DashBoard/User";
 import GetProduct from "./components/DashBoard/ProductManage.jsx/GetProduct";
 import PaymentSuccess from "./components/Checkout/PaymentSuccess";
+import BookingHistory from "./components/Profile/BookingHistory";
+import Dashboards from "./components/DashBoard/Dashboards"
+import AddService from "./components/DashBoard/ServiceManagement.jsx/AddService"
+import EditService from "./components/DashBoard/ServiceManagement.jsx/EditService"
+import ViewService from "./components/DashBoard/ServiceManagement.jsx/ViewService"
+
+import QR from "./pages/QR/QR";
+import AddProduct from "./components/DashBoard/ProductManage.jsx/AddProduct";
 
 const App = () => {
   const [showNavbarAndFooter, setShowNavbarAndFooter] = useState(true);
@@ -52,7 +59,10 @@ const App = () => {
       "/confirm-email",
       "/check-email",
       "/dashboard",
-      "/payment-success"
+      "/payment-success",
+      "/booking-history",
+      "/order-service",
+      "/qr"
     ];
 
     const isMatched = routes.some((route) => matchPath(route, location.pathname));
@@ -82,6 +92,9 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/booking-history" element={<BookingHistory />} />
+          <Route path="/order-service" element={<GetService />} />
+          <Route path="/qr" element={<QR />} />
           <Route
             path="/productdisplay/:productName"
             element={<ProductDisplay />}
@@ -90,14 +103,22 @@ const App = () => {
           <Route path="/check-email" element={<CheckEmail />} />
 
           <Route path="/layout" element={<Layout />}>
-            <Route path="add-order/:orderId" element={<AddOrder />} />
-            <Route path="service-info" element={<GetService />} />
-            <Route path="account-info" element={<User />} />
-            <Route path="product-info" element={<GetProduct />} />
+            <Route path="/layout/dashboards" element={<Dashboards />} />
+            <Route path="/layout/add-order/:orderId" element={<AddOrder />} />
+            <Route path="/layout/service-info" element={<GetService />} />
+            <Route path="/layout/add-service" element={<AddService />} />
+            <Route path="/layout/edit-service/:servicesId" element={<EditService />} />
+            <Route path="/layout/view-service" element={<ViewService />} />
+            <Route path="/layout/account-info" element={<User />} />
+            <Route path="/layout/product-info" element={<GetProduct />} />
+            <Route path="/layout/add-product" element={<AddProduct />} />
+           
+            
           </Route>
 
+
           {/* DashBoard */}
-          <Route path="/dashboard" element={<DashBoard />} />
+          <Route path="/dashboard/*" element={<DashBoard />} />
 
           {/* Đường dẫn không khớp */}
           <Route path="*" element={<NotFound />} />

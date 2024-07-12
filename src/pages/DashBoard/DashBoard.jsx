@@ -1,46 +1,38 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useState } from "react";
+import React from "react";
 import Sidebar from "../../components/DashBoard/SideBar";
 import User from "../../components/DashBoard/User";
 import GetProduct from "../../components/DashBoard/ProductManage.jsx/GetProduct";
-import GetService from "../../components/DashBoard/ServiceManagement.jsx/GetService"
-import Staff from "../../components/DashBoard/Staff";
+import GetService from "../../components/DashBoard/ServiceManagement.jsx/GetService";
+import AddOrder from "../../components/DashBoard/ServiceManagement.jsx/AddOrder";
+import { Routes, Route } from "react-router-dom";
+import Dashboards from "../../components/DashBoard/Dashboards";
+import EditService from "../../components/DashBoard/ServiceManagement.jsx/EditService";
+import ViewService from "../../components/DashBoard/ServiceManagement.jsx/ViewService";
+import AddProduct from "../../components/DashBoard/ProductManage.jsx/AddProduct";
 
 
 const DashBoard = () => {
-  const [activeSection, setActiveSection] = useState("account-info");
-
   return (
     <div className="flex">
-      <Sidebar setActiveSection={setActiveSection} />
+      <Sidebar />
       <div className="flex-1 p-8">
-      {activeSection === "account-info" && (
-          <User/>
-        )}
-        {activeSection === "staff-info" && (
-          <Staff/>
-        )}
-        {activeSection === "product-info" && (
-          <GetProduct/>
-        )}
-        {activeSection === "service-info" && (
-          <GetService/>
-        )}
-        {activeSection === "order-management" && (
-          <div>
-            <h1 className="text-2xl font-bold">Quản lý đơn hàng</h1>
-            <p className="mt-4">Chi tiết về đơn hàng...</p>
-          </div>
-        )}
-         {activeSection === "transaction" && (
-          <div>
-            <h1 className="text-2xl font-bold">Transaction</h1>
-           
-          </div>
-        )}
+        <Routes>
+          <Route path="/layout/dashboards" element={<Dashboards />} />
+          <Route path="/layout/account-info" element={<User />} />
+          <Route path="/layout/product-info" element={<GetProduct />} />
+          <Route path="/layout/service-info" element={<GetService />} />
+          <Route path="/layout/add-service" element={<GetService />} />
+          <Route path="/layout/add-order" element={<AddOrder />} />
+          <Route path="/layout/edit-order" element={<EditService />} />
+          <Route path="/layout/view-order" element={<ViewService />} />
+          <Route path="/layout/add-product" element={<AddProduct />} />
+      
+
+        </Routes>
       </div>
     </div>
   );
 };
 
 export default DashBoard;
+

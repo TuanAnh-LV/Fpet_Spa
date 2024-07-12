@@ -18,23 +18,31 @@ import {jwtDecode} from "jwt-decode";
 
 export const loginUser = (user, dispatch, navigate) => {
   dispatch(loginStart());
-  return axios.post(`https://fpetspa.azurewebsites.net/api/account/signin/customer`, user)
+  return axios.post('https://fpetspa.azurewebsites.net/api/account/signin/customer', user)
     .then((res) => {
       const accessToken = res.data.accessToken;
       const refreshToken = res.data.refreshToken;
       const decodedToken = jwtDecode(accessToken);
       const userId = decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
       const fullName = res.data.fullName;
-
+      const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
       const userData = {
         accessToken,
         refreshToken,
         userId,
         fullName,
+        role
       };
 
       dispatch(loginSuccess(userData));
-      navigate("/");
+
+      // Navigate based on role
+      if (role === 'Customer') {
+        navigate('/');
+      } else if (role === 'Staff') {
+        navigate('/dashboard');
+      }
+
       return userData;
     })
     .catch((error) => {
@@ -64,24 +72,32 @@ export const registerUser = async (user, dispatch, navigate) => {
 //https://localhost:7055/api/account/signup/customer
 // /https://fpetspa.azurewebsites.net/api/account/signup/customer
 
-export const signInWithGoogle = async (googleUser, dispatch) => {
+export const SignGoogle = (googleUser, dispatch, navigate) => {
     dispatch(loginStart());
-    try {
-        // Chuyển hướng người dùng đến URL đăng nhập Google
-        window.location.href = 'https://fpetspa.azurewebsites.net/api/account/login-google';
-        // dispatch và navigate sẽ không được thực hiện vì người dùng đã được chuyển hướng
+    return axios.post(`https://fpetspa.azurewebsites.net/api/account/signin/customer`, user)
+      .then((res) => {
+        const accessToken = res.data.accessToken;
+        const refreshToken = res.data.refreshToken;
+        const decodedToken = jwtDecode(accessToken);
+        const userId = decodedToken["jti"];
+        const fullName = res.data.fullName;
+  
         const googleUser = {
-            token,
-            fullName,
-            refreshToken
-        }
-        dispatch(loginSuccess());
-    } catch (error) {
-        console.log(error);
+          accessToken,
+          refreshToken,
+          userId,
+          fullName,
+        };
+  
+        dispatch(loginSuccess(userData));
+        navigate("/");
+        return userData;
+      })
+      .catch((error) => {
         dispatch(loginFailed());
-    }
-};
-
+        throw error;
+      });
+  };
 
 
 

@@ -3,7 +3,6 @@ import axios from "axios";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import UpdateProduct from "./UpdateProduct";
 import "react-lazy-load-image-component/src/effects/blur.css";
-import AddProduct from "./AddProduct";
 
 const GetProduct = () => {
   const [products, setProducts] = useState([]);
@@ -11,7 +10,6 @@ const GetProduct = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [isAdding, setIsAdding] = useState(false); // State to determine if adding a new product
   const productsPerPage = 3;
 
   const fetchData = async () => {
@@ -36,24 +34,28 @@ const GetProduct = () => {
       (product) => product.productId === productId
     );
     setSelectedProduct(productToUpdate);
-    setIsAdding(false);
     setShowModal(true);
   };
 
-  const handleAdd = () => {
-    setSelectedProduct(null);
-    setIsAdding(true);
-    setShowModal(true);
-  };
+  const handleRemove = async (productId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmed) return;
 
-  const handleRemove = (productId) => {
-    alert(`Remove product ${productId}`);
+    try {
+      await axios.delete(`https://fpetspa.azurewebsites.net/api/products/${productId}`);
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.productId !== productId)
+      );
+      alert('Product removed successfully!');
+    } catch (error) {
+      console.error("Error removing product:", error);
+      alert('Failed to remove product.');
+    }
   };
 
   const closeModal = () => {
     setSelectedProduct(null);
     setShowModal(false);
-    setIsAdding(false);
   };
 
   const handleProductUpdate = (updatedProduct) => {
@@ -62,10 +64,6 @@ const GetProduct = () => {
         product.productId === updatedProduct.productId ? updatedProduct : product
       )
     );
-  };
-
-  const handleProductAdd = (newProduct) => {
-    setProducts((prevProducts) => [newProduct, ...prevProducts]);
   };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -80,12 +78,7 @@ const GetProduct = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Danh sách sản phẩm</h2>
-        <button
-          onClick={handleAdd}
-          className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600">
-          Add Product
-        </button>
+        <h2 className="text-2xl font-bold">List Product</h2>
       </div>
       {loading ? (
         <div className="bg-white rounded shadow p-6 w-full max-w-xl mx-auto">
@@ -100,30 +93,30 @@ const GetProduct = () => {
           </div>
         </div>
       ) : (
-        <div>
+        <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-200">
             <thead>
               <tr className="bg-gray-100">
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ảnh
+                  Picture 
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tên sản phẩm
+                  Product 
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Loại
+                  Category
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Mô tả
+                  Description
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Số lượng
+                  Quantity
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Giá
+                  Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Hành động
+                  Action
                 </th>
               </tr>
             </thead>
@@ -159,12 +152,12 @@ const GetProduct = () => {
                     <button
                       onClick={() => handleUpdate(product.productId)}
                       className="text-indigo-600 hover:text-indigo-900">
-                      Cập nhật
+                      Edit /
                     </button>
                     <button
                       onClick={() => handleRemove(product.productId)}
                       className="ml-2 text-red-600 hover:text-red-900">
-                      Xóa
+                      Remove
                     </button>
                   </td>
                 </tr>
@@ -201,19 +194,15 @@ const GetProduct = () => {
           <div className="flex items-center justify-center min-h-screen">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
-            <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all max-w-lg w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all max-w-7xl w-full">
+              <div className="bg-white px-4 pt-0 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex justify-center sm:items-center">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    {isAdding ? (
-                      <AddProduct onAdd={handleProductAdd} closeModal={closeModal} />
-                    ) : (
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">            
                       <UpdateProduct
                         product={selectedProduct}
                         closeModal={closeModal}
                         onUpdate={handleProductUpdate}
                       />
-                    )}
                   </div>
                 </div>
               </div>
