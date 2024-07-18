@@ -1,20 +1,25 @@
-.navbar {
+/* .navbar1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 2px;
     margin-bottom: 1rem;
-    
+    position: -webkit-sticky; 
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    background-color: white;
 }
 
-.navbar.hidden {
-    top: -80px; /* Độ dài của navbar, điều chỉnh tùy thuộc vào chiều cao của navbar */
+.navbar1.hidden {
+    top: -80px; 
   }
 
-.navbar .logo {
+.navbar1 .logo {
     position: relative;
     left: 180px;
-    width: 80px;
+    width: 100px;
     cursor: pointer;
 }
 
@@ -26,6 +31,7 @@
     color: #111827;
     font-size: 15.75px;
     font-weight: 500;
+    
 }
 
 
@@ -36,29 +42,21 @@
     align-items: center;
     gap: 30px;
     margin-bottom: 12px;
+    cursor: pointer;
 }
 
 .navbar-right .search {
     width: 20px;
     cursor: pointer;
+    cursor: pointer;
 }
 
 
 .navbar-right .cart {
-    width: 25px;    
+    width: 25px;
+    cursor: pointer;    
 }
-
-/* .navbar button {
-    top: -13px;
-    right: -85px;
-    font-size: 12px;
-    font-weight: 500;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: 0.3s;
-} */
-
-.navbar button {
+.navbar1 button {
     top: -4px;
     right: -7px;
     font-size: 12px;
@@ -66,9 +64,10 @@
     border-radius: 50px;
     cursor: pointer;
     transition: 0.3s;
+    
 }
 
-.navbar .user {
+.navbar1 .user {
     width: 23.5px;
     right: -55px;
     top: 12px;
@@ -78,19 +77,18 @@
     display: flex;
     gap: 7px;
 }
-.navbar li {
+.navbar1 li {
     cursor: pointer;
 }
 
 
 
 
-/* search */
 
 
 
 @media (max-width: 1050px) {
-    .navbar .logo {
+    .navbar1 .logo {
         width: 140px;
     }
 
@@ -101,6 +99,7 @@
 
     .navbar-right {
         gap: 30px;
+        
     }
 
     .navbar-right img {
@@ -113,7 +112,7 @@
 }
 
 @media (max-width: 900px) {
-    .navbar .logo {
+    .navbar1 .logo {
         width: 120px;
     }
 
@@ -159,4 +158,4 @@
     font-size: 17px;
     background: black;
     color: white;
-}
+} */

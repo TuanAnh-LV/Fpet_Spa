@@ -1,34 +1,83 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useContext, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { ShopContext } from '../Context/ShopContext';
-import { getProductName } from '../../api/apiService';
+import { getProductById } from '../../api/apiService';
 import { StarIcon } from '@heroicons/react/20/solid';
 import 'react-toastify/dist/ReactToastify.css';
+import Avatar from "@mui/material/Avatar";
+import Stack from "@mui/material/Stack";
+import '../ProductDisplay/ProductDisplay.css';
 import { assets } from '../../assets/assets';
-import '../ProductDisplay/ProductDisplay.css'
-import RelatedProduct from '../../components/RelatedProducts/RelatedProduct'
+
 
 const ProductDisplay = () => {
-  const { productName } = useParams();
+  const { productId } = useParams();
   const { addToCart } = useContext(ShopContext);
   const [product, setProduct] = useState(null);
-  const [mainImage, setMainImage] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [comments, setComments] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [commentStar, setCommentStar] = useState(5);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+ 
+
+
 
   useEffect(() => {
     fetchProduct();
-  }, [productName]);
+    fetchComments(productId);
+    fetchUsers();
+  }, [productId]);
 
   const fetchProduct = async () => {
     try {
-      const response = await getProductName({ productName });
-      if (response && response.length > 0) {
-        setProduct(response[0]);
-        setMainImage(response[0].picture);
+      const response = await getProductById({ productId });
+      if (response) {
+        setProduct(response);
+        fetchRelatedProducts(response.categoryName); // Fetch related products by category
       }
     } catch (error) {
       console.error("Error fetching product:", error);
+    }
+  };
+
+  const fetchComments = async (productId) => {
+    try {
+      const response = await fetch(`https://fpetspa.azurewebsites.net/api/FeedBack/productId?productId=${productId}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setComments(data);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('https://fpetspa.azurewebsites.net/api/account/getAllCustomer');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  const fetchRelatedProducts = async (categoryName) => {
+    try {
+      const response = await fetch(`https://fpetspa.azurewebsites.net/api/products?pageSize=100&categoryName=${categoryName}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setRelatedProducts(data);
+    } catch (error) {
+      console.error("Error fetching related products:", error);
     }
   };
 
@@ -52,62 +101,117 @@ const ProductDisplay = () => {
     return <div>Loading...</div>;
   }
 
+  function stringToColor(string) {
+    let hash = 0;
+    let i;
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = "#";
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
+    }
+    return color;
+  }
+
+  function stringAvatar(name) {
+    if (!name || typeof name !== "string") {
+      return {
+        sx: {
+          bgcolor: "#000000",
+        },
+        children: "",
+      };
+    }
+
+    const nameParts = name.split(" ");
+    if (nameParts.length < 2) {
+      return {
+        sx: {
+          bgcolor: stringToColor(name),
+        },
+        children: name.charAt(0),
+      };
+    }
+
+    return {
+      sx: {
+        bgcolor: stringToColor(name),
+      },
+      children: `${nameParts[0][0]}${nameParts[1][0]}`,
+    };
+  }
+
   const renderStars = (rating) => {
     const stars = [];
-    const totalStars = rating ?? 5; // Nếu không có rating, mặc định là 5 sao
+    const totalStars = rating ?? 5; // Default to 5 stars if no rating
     for (let i = 0; i < totalStars; i++) {
       stars.push(
-        <StarIcon key={i} className="h-5 w-5 text-yellow-400" /> // Đây là icon sao của bạn, thay thế bằng icon của bạn
+        <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
       );
     }
     return stars;
   };
 
+  const getUserName = (userId) => {
+    const user = users.find((user) => user.id === userId);
+    return user ? user.fullName : 'Anonymous';
+  };
+
+  const handleStarClick = (rating) => {
+    setCommentStar(rating);
+  };
+
+  const renderStarRating = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <StarIcon
+          key={i}
+          className={`h-5 w-5 cursor-pointer ${i <= commentStar ? 'text-yellow-400' : 'text-gray-300'}`}
+          onClick={() => handleStarClick(i)}
+        />
+      );
+    }
+    return stars;
+  };
+
+
   return (
     <div className="bg-white">
       <div className="pt-6">
         {/* Image gallery */}
-        
-        <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-[65rem] lg:grid-cols-3 lg:gap-x-8 lg:px-8 ">
-  <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-5">
-    <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-      <img
-        src={mainImage}
-        alt={product.productName}
-        className="h-full w-full object-cover object-center"
-      />
-    </div>
-    <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-      <img
-        src={product.pictureName}
-        alt={product.productName}
-        className="h-full w-full object-cover object-center"
-      />
-    </div>
-  </div>
-  <div className="aspect-h-5 aspect-w-4 lg:aspect-h-4 lg:aspect-w-3 sm:overflow-hidden sm:rounded-lg lg:col-span-2">
-    <img
-      src={'https://bixbipet.com/wp-content/uploads/2022/09/WebTiles_Rawbble_Cat_Dry_ChickenSalmonIndoor_1.png'}
-      alt={product.productName}
-      className="h-full w-full object-cover object-center"
-    />
-  </div>
-</div>
-
-        {/* Product info */}
-        <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
-          <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.productName}</h1>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 lg:py-16">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-8">
+          <div className="aspect-w-4 aspect-h-5 sm:overflow-hidden sm:rounded-lg">
+            <img
+              src={product.pictureName}
+              alt={product.productName}
+              className="h-full w-full object-cover object-center"
+            />
           </div>
 
-          {/* Options */}
-          <div className="mt-4 lg:row-span-3 lg:mt-0">
-            <h2 className="sr-only">Product information</h2>
-            <p className="text-3xl tracking-tight text-gray-900">${product.price}</p>
+          <div className="mt-4 lg:mt-0 lg:border-l lg:border-gray-200 lg:pl-8">
+            <div className='bg-pink-50 rounded p-7'>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.productName}</h1>
+            <p className="mt-4 text-3xl tracking-tight text-gray-900">${product.price}</p>
 
-            {/* Reviews */}
+            <div className="mt-10">
+              <div>
+                <h3 className="sr-only">Description</h3>
+                <div className="space-y-6">
+                  <p className="text-base text-gray-900">{product.productDescription}</p>
+                </div>
+              </div>
+              <div className="mt-10">
+                <div className="space-y-6">
+                  <p className="text-sm text-gray-600">{product.productDetails}</p>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-6">
-              <h3 className="sr-only">Reviews</h3>
               <div className="flex items-center">
                 <div className="flex items-center">
                   {renderStars(product.averageRating)}
@@ -119,41 +223,54 @@ const ProductDisplay = () => {
               </div>
             </div>
 
-            {/* Quantity Selector */}
             <div className="mt-6">
               <div className="flex items-center space-x-2">
-                <button onClick={handleDecreaseQuantity} className="px-4 py-2 border">-</button>
-                <span>{quantity}</span>
-                <button onClick={handleIncreaseQuantity} className="px-4 py-2 border">+</button>
+                <button onClick={handleDecreaseQuantity} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 transition duration-200">-</button>
+                <span className="text-lg font-medium text-gray-900">{quantity}</span>
+                <button onClick={handleIncreaseQuantity} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200 transition duration-200">+</button>
               </div>
             </div>
 
             <button
-              className="mt-10 w-full flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="mt-10 flex items-center justify-center border border-transparent bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full animate-pulse"
               onClick={handleAddToCart}
             >
               Add to cart
             </button>
-          </div>
-
-          <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
-            {/* Description and details */}
-            <div>
-              <h3 className="sr-only">Description</h3>
-              <div className="space-y-6">
-                <p className="text-base text-gray-900">{product.productDescription}</p>
-              </div>
-            </div>
-            <div className="mt-10">
-              <h2 className="text-sm font-medium text-gray-900">Details</h2>
-              <div className="mt-4 space-y-6">
-                <p className="text-sm text-gray-600">{product.productDescription}</p>
-              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className='breakdance1'>
+
+        <div className="mt-12 lg:mt-16 lg:grid lg:grid-cols-3 lg:gap-x-8 ml-28 mr-20">
+          <div className="lg:col-span-3">
+            
+            <div className="bg-white rounded-3xl shadow-md p-6 mb-4 overflow-auto mt-6 space-y-8  ">
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Product Comments</h2>
+              {comments.map((comment) => (
+                <div key={comment.id} className="border-b border-gray-200 pb-8">
+                  <div className="flex space-x-4">
+                  <div>
+                      <Stack direction="row" spacing={2}>
+                          <Avatar {...stringAvatar(getUserName(comment.userFeedBackId))} />
+                      </Stack>
+                  </div>
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">{getUserName(comment.userFeedBackId)}</h3>
+                      <div className="flex items-center">
+                        {renderStars(comment.star)}
+                      </div>
+                      <p className="mt-4 text-base text-gray-900">{comment.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+
+        <div className='breakdance1'>
       <section className='bde-section-145096-100 bde-section'>
         <div className='section-container'>
           <div className='bde-globalblock-145096-101 bde-globalblock'>
@@ -547,12 +664,56 @@ const ProductDisplay = () => {
     </div>
       </section>
       </div>
-      <div className='related-product'>
-        <RelatedProduct/>
+
+        {/* Related products */}
+        <div className='related-product bg-white'>
+  <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+    <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900 mb-6">Customers also purchased</h2>
+    {/* <div className="flex justify-center space-x-6 ">
+      {relatedProducts.slice(0, 4).map((product) => (
+        <div key={product.productId} className="w-60">
+          <div className="aspect-w-1 aspect-h-1 rounded-md overflow-hidden bg-gray-200 lg:aspect-none group">
+            <Link to={`/productdisplay/${product.productId}`}>
+              <img
+                src={product.pictureName}
+                alt={product.productName}
+                className="object-cover object-center w-full h-full"
+              />
+            </Link>
+          </div>
+          <div className="mt-4 flex justify-between">
+          <h4 className="font-bold text-gray-800">{product.productName}</h4>
+          </div>
+          <p className="text-sm font-medium text-gray-900">${product.price}</p> 
+        </div>
+      ))}
+    </div> */}
+    <div className="flex justify-center space-x-6 ">
+      {relatedProducts.slice(0, 4).map((product) => (
+        <div key={product.productId} className="w-60 h-96 bg-pink-100 rounded-3xl text-neutral-300 p-4 flex flex-col items-start justify-center gap-3 hover:bg-gray-900 hover:shadow-2xl hover:shadow-sky-400 transition-shadow">
+          <div className="aspect-w-1 aspect-h-1 rounded-md overflow-hidden bg-gray-200 lg:aspect-none group">
+            <Link to={`/productdisplay/${product.productId}`}>
+              <img
+                src={product.pictureName}
+                alt={product.productName}
+                className="object-cover object-center w-52 h-56 bg-sky-300 rounded-2xl"
+              />
+            </Link>
+          </div>
+          <div className="mt-4 flex justify-between">
+          <h4 className="font-bold text-gray-800">{product.productName}</h4>
+          </div>
+          <p className="text-sm font-medium text-gray-900">${product.price}</p> 
+        </div>
+      ))}
+    </div>
+
+  </div>
+</div>
+
+
       </div>
-    </div>  
-      
-    
+    </div>
   );
 };
 

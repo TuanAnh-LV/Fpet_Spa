@@ -10,9 +10,10 @@ import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import Product from "./pages/Product/Product";
 import ProductDisplay from "./components/ProductDisplay/ProductDisplay";
-import ConfirmEmail from "./pages/ConfirmEmail/ConfirmEmail";
-import CheckEmail from "./pages/CheckEmail/CheckEmail";
+
 import "react-toastify/dist/ReactToastify.css";
+import 'semantic-ui-css/semantic.min.css';
+
 import Service from "./pages/Service/Service";
 import ContactUs from "./pages/ContactUs/ContactUs";
 import AboutUs from "./pages/AboutUs/AboutUs";
@@ -29,13 +30,15 @@ import User from "./components/DashBoard/User";
 import GetProduct from "./components/DashBoard/ProductManage.jsx/GetProduct";
 import PaymentSuccess from "./components/Checkout/PaymentSuccess";
 import BookingHistory from "./components/Profile/BookingHistory";
-import Dashboards from "./components/DashBoard/Dashboards"
-import AddService from "./components/DashBoard/ServiceManagement.jsx/AddService"
-import EditService from "./components/DashBoard/ServiceManagement.jsx/EditService"
-import ViewService from "./components/DashBoard/ServiceManagement.jsx/ViewService"
+import Dashboards from "./components/DashBoard/Dashboards";
+import AddService from "./components/DashBoard/ServiceManagement.jsx/AddService";
+import EditService from "./components/DashBoard/ServiceManagement.jsx/EditService";
+import ViewService from "./components/DashBoard/ServiceManagement.jsx/ViewService";
+import BookingProduct from "./components/DashBoard/ProductManage.jsx/BookingProduct";
 
 import QR from "./pages/QR/QR";
 import AddProduct from "./components/DashBoard/ProductManage.jsx/AddProduct";
+import SearchResult from "./components/PageProduct/SearchResult";
 
 const App = () => {
   const [showNavbarAndFooter, setShowNavbarAndFooter] = useState(true);
@@ -56,17 +59,28 @@ const App = () => {
       "/profile",
       "/checkout",
       "/productdisplay/:productName",
-      "/confirm-email",
-      "/check-email",
-      "/dashboard",
+      "/dashboard/*",
       "/payment-success",
       "/booking-history",
       "/order-service",
-      "/qr"
+      "/qr",
+      "/layout",
+      "/layout/dashboards",
+      "/layout/add-order/:orderId",
+      "/layout/service-info",
+      "/layout/add-service",
+      "/layout/edit-service/:servicesId",
+      "/layout/view-service",
+      "/layout/account-info",
+      "/layout/product-info",
+      "/layout/add-product",
+      "/layout/booking-product",
+      "/search"
+
     ];
 
     const isMatched = routes.some((route) => matchPath(route, location.pathname));
-    setShowNavbarAndFooter(isMatched && !location.pathname.includes("/dashboard") && !location.pathname.includes("/layout"));
+    setShowNavbarAndFooter(isMatched);
   }, [location.pathname]);
 
   return (
@@ -95,12 +109,8 @@ const App = () => {
           <Route path="/booking-history" element={<BookingHistory />} />
           <Route path="/order-service" element={<GetService />} />
           <Route path="/qr" element={<QR />} />
-          <Route
-            path="/productdisplay/:productName"
-            element={<ProductDisplay />}
-          />
-          <Route path="/confirm-email" element={<ConfirmEmail />} />
-          <Route path="/check-email" element={<CheckEmail />} />
+          <Route path="/productdisplay/:productId" element={<ProductDisplay />} />
+          <Route path="/search" element={<SearchResult />} />
 
           <Route path="/layout" element={<Layout />}>
             <Route path="/layout/dashboards" element={<Dashboards />} />
@@ -112,11 +122,10 @@ const App = () => {
             <Route path="/layout/account-info" element={<User />} />
             <Route path="/layout/product-info" element={<GetProduct />} />
             <Route path="/layout/add-product" element={<AddProduct />} />
-           
-          
+            <Route path="/layout/booking-product" element={<BookingProduct />} />
           </Route>
 
-        {/* DashBoard */}
+          {/* DashBoard */}
           <Route path="/dashboard/*" element={<DashBoard />} />
 
           {/* Đường dẫn không khớp */}
