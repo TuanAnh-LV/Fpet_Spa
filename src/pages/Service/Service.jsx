@@ -1,7 +1,6 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
-import ServiceContent2 from "../../components/Content/ServiceContent2";
 import { useSelector } from "react-redux";
 
 const Service = () => {
@@ -17,7 +16,9 @@ const Service = () => {
       navigate("/login", { state: { returnTo: "/service" } });
     }
   };
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     
     <div className="min-h-screen max-w-full mt-10">
@@ -53,9 +54,7 @@ const Service = () => {
           />
         </div>
       </div>
-      <div className="bg-myCusColor">
-        <ServiceContent2 />
-      </div>
+
     </div>
   );
 };

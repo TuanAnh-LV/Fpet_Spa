@@ -1,12 +1,8 @@
-import { useEffect, useState, useContext, useCallback, useRef} from 'react';
+import { useEffect, useState, useContext, useCallback, useRef } from 'react';
 import {
   Dialog,
   DialogBackdrop,
   DialogPanel,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
 } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, FunnelIcon } from '@heroicons/react/20/solid';
@@ -42,11 +38,10 @@ export default function ProductList() {
   const [sortedProductList, setSortedProductList] = useState([]);
   const { addToCart } = useContext(ShopContext) || { addToCart: () => {} };
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [sortTitle, setSortTitle] = useState('Sort Options');
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 12;
   const [sortOrder, setSortOrder] = useState('default');
-  const productsSectionRef = useRef(null);
+  const productsSectionRef = useRef(null); // Thêm ref này
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -56,11 +51,8 @@ export default function ProductList() {
       } else {
         const promises = selectedCategories.map((category) => getProductsByCategory({ category }));
         const categoryResponses = await Promise.all(promises);
-        const products = categoryResponses.flatMap((response) => response);
-        response = products;
+        response = categoryResponses.flat();
       }
-
-      console.log('Fetched products:', response);
       setProductList(response);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -88,6 +80,10 @@ export default function ProductList() {
     }
   }, [currentPage, selectedCategories, sortOrder]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleCategoryClick = (value) => {
     setSelectedCategories((prevCategories) =>
       prevCategories.includes(value)
@@ -96,19 +92,40 @@ export default function ProductList() {
     );
   };
 
-  const handleSortChange = (value) => {
-    setSortOrder(value);
-    setSortTitle(sortOptions.find((option) => option.value === value).name);
-  };
-
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = sortedProductList.slice(indexOfFirstProduct, indexOfLastProduct);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('Sort Options');
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleOptionClick = (value, name) => {
+    setSortOrder(value);
+    setSelectedOption(name);
+    setIsOpen(false);
+  };
+
+  const updateProductQuantity = (productId, quantity) => {
+    setProductList((prevProductList) =>
+      prevProductList.map((product) =>
+        product.productId === productId
+          ? { ...product, productQuantity: product.productQuantity + quantity }
+          : product
+      )
+    );
+  };
+
+  const handleAddToCart = (productId) => {
+    addToCart(productId, 1);
+    updateProductQuantity(productId, -1);
+  };
+
   return (
-    <div className="bg-white"  ref={productsSectionRef}>
+    <div className="product-bg-white" ref={productsSectionRef}> {/* Thêm ref này */}
       <div>
         {/* Mobile filter dialog */}
         <Dialog open={mobileFiltersOpen} onClose={setMobileFiltersOpen} className="relative z-40 lg:hidden">
@@ -117,7 +134,7 @@ export default function ProductList() {
           <div className="fixed inset-0 z-40 flex">
             <DialogPanel className="relative ml-auto flex h-full w-full max-w-xs transform flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl transition duration-300 ease-in-out data-[closed]:translate-x-full">
               <div className="flex items-center justify-between px-4">
-                <h2 className="text-lg font-medium text-gray-900">Filters</h2>
+                <h2 className="text-lg font-medium text-gray-900">Filters</                h2>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}
@@ -151,43 +168,35 @@ export default function ProductList() {
         </Dialog>
 
         <main className="mx-auto max-w-max px-4 sm:px-6 lg:px-8">
-          <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-8 " >
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900">Product</h1>
+          <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-8">
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900">Products</h1>
 
             <div className="flex items-center">
-              
-              <Menu as="div" className="relative inline-block text-left">
-                <div>
-                  <MenuButton className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
-                    Sort
-                    <ChevronDownIcon aria-hidden="true" className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" />
-                  </MenuButton>
-                </div>
+              <div className="relative inline-block text-left">
+                <button
+                  onClick={toggleDropdown}
+                  className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
+                  {selectedOption}
+                  <ChevronDownIcon aria-hidden="true" className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" />
+                </button>
 
-                <MenuItems className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="py-1">
-                    {sortOptions.map((option) => (
-                      <MenuItem key={option.value}>
-                        {({ active }) => (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleSortChange(option.value);
-                            }}
-                            className={classNames(
-                              option.current ? 'font-medium text-gray-900' : 'text-gray-500',
-                              active ? 'bg-gray-100' : '',
-                              'block px-4 py-2 text-sm'
-                            )}
-                          >
-                            {option.name}
-                          </button>
-                        )}
-                      </MenuItem>
-                    ))}
+                {isOpen && (
+                  <div className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5">
+                    <div className="py-1">
+                      {sortOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => handleOptionClick(option.value, option.name)}
+                          className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-100 w-full text-left"
+                        >
+                          {option.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </MenuItems>
-              </Menu>
+                )}
+              </div>
 
               <button
                 type="button"
@@ -200,7 +209,7 @@ export default function ProductList() {
             </div>
           </div>
 
-          <section aria-labelledby="products-heading" className="pb-24 pt-6" >
+          <section aria-labelledby="products-heading" className="pb-24 pt-6">
             <h2 id="products-heading" className="sr-only">Products</h2>
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
@@ -250,12 +259,18 @@ export default function ProductList() {
                             <div className="p-2 flex flex-col flex-grow justify-between">
                               <div>
                                 <h4 className="font-bold text-gray-800">{product?.productName || 'Unknown Product'}</h4>
+                                <p className={`mt-2 ${product?.productQuantity > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                  {product?.productQuantity > 0 ? 'Stocking' : 'Out of Stock'}
+                                </p>
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-gray-800">Quantity: {product?.productQuantity || 'Unknown Product'}</h4>
                               </div>
                               <div className="flex justify-between items-center mt-3">
                                 <span className="ordernow-text text-[#d13a3a] font-semibold group-hover:text-gray-800">${product?.price}</span>
                                 <button
                                   className="btun4 lg:inline-flex items-center gap-3 border border-transparent bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full animate-pulse"
-                                  onClick={() => product?.productId && addToCart(product.productId, 1)}
+                                  onClick={() => product?.productId && handleAddToCart(product.productId)}
                                 >
                                   Order Now
                                 </button>

@@ -4,16 +4,11 @@ import { assets } from '../../../assets/assets';
 
 const UpdateProduct = ({ product, closeModal, onUpdate }) => {
   const [updatedProduct, setUpdatedProduct] = useState({
-    pictureName: product.pictureName,
-    productName: product.productName,
-    productDescription: product.productDescription,
     productQuantity: product.productQuantity,
     price: product.price,
-    categoryID: product.categoryID,
   });
 
   const [thumbnailUrl, setThumbnailUrl] = useState(product.pictureName || assets.avatar);
-  const [file, setFile] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,27 +18,12 @@ const UpdateProduct = ({ product, closeModal, onUpdate }) => {
     }));
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFile(file);
-      setThumbnailUrl(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('productName', updatedProduct.productName);
-    formData.append('productDescription', updatedProduct.productDescription);
     formData.append('productQuantity', updatedProduct.productQuantity);
     formData.append('price', updatedProduct.price);
-    formData.append('categoryID', updatedProduct.categoryID);
-
-    if (file) {
-      formData.append('file', file);
-    }
 
     try {
       await axios.put(`https://fpetspa.azurewebsites.net/api/products/${product.productId}`, formData, {
@@ -69,19 +49,10 @@ const UpdateProduct = ({ product, closeModal, onUpdate }) => {
           <div className="bg-white p-4 border rounded-md shadow-sm">
             <h2 className="text-lg font-semibold mb-2">Thumbnail</h2>
             <div className="flex flex-col items-center">
-              <label htmlFor="file-input" className="cursor-pointer">
-                <img
-                  src={thumbnailUrl}
-                  alt="Thumbnail"
-                  className="w-40 h-40 border rounded-md shadow-sm"
-                />
-              </label>
-              <input
-                type="file"
-                id="file-input"
-                accept="image/png, image/jpeg"
-                className="hidden"
-                onChange={handleFileChange}
+              <img
+                src={thumbnailUrl}
+                alt="Thumbnail"
+                className="w-40 h-40 border rounded-md shadow-sm"
               />
               <p className="text-sm text-gray-500 mt-2 text-center">
                 Product thumbnail image. Only *.png, *.jpg and *.jpeg image files are accepted.
@@ -94,35 +65,29 @@ const UpdateProduct = ({ product, closeModal, onUpdate }) => {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="productName">
-                Product Name <span className="text-red-500">*</span>
+                Product Name
               </label>
               <input
                 type="text"
                 name="productName"
                 id="productName"
-                placeholder="Product Name"
                 className="w-full border rounded-md shadow-sm p-2"
-                value={updatedProduct.productName}
-                onChange={handleChange}
-                required
+                value={product.productName}
+                disabled
               />
-              <p className="text-xs text-gray-500 mt-1">A product name is required and recommended to be unique.</p>
             </div>
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="productDescription">
-                Product Description <span className="text-red-500">*</span>
+                Product Description
               </label>
               <textarea
                 name="productDescription"
                 id="productDescription"
-                placeholder="Product Description"
                 className="w-full border rounded-md shadow-sm p-2"
-                value={updatedProduct.productDescription}
-                onChange={handleChange}
-                required
+                value={product.productDescription}
+                disabled
               ></textarea>
-              <p className="text-xs text-gray-500 mt-1">Set the product description.</p>
             </div>
 
             <div className="mb-4">

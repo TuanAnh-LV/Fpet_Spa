@@ -152,7 +152,7 @@ const GetProduct = () => {
                     <button
                       onClick={() => handleUpdate(product.productId)}
                       className="text-indigo-600 hover:text-indigo-900">
-                      Edit /
+                      Edit
                     </button>
                     <button
                       onClick={() => handleRemove(product.productId)}
@@ -191,10 +191,10 @@ const GetProduct = () => {
 
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen">
+          <div className="flex items-center ml-60 min-h-screen">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
-            <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all max-w-7xl w-full">
+            <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all max-w-6xl w-full">
               <div className="bg-white px-4 pt-0 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex justify-center sm:items-center">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">            

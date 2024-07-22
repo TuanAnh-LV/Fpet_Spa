@@ -5,19 +5,17 @@ import Navbar from "./components/Navbar/Navbar";
 import Cart from "./pages/Cart/Cart";
 import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
 import Home from "./pages/Home/Home";
-import Footer from "./components/Footer/Footer";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import Product from "./pages/Product/Product";
 import ProductDisplay from "./components/ProductDisplay/ProductDisplay";
 
 import "react-toastify/dist/ReactToastify.css";
-import 'semantic-ui-css/semantic.min.css';
+import "semantic-ui-css/semantic.min.css";
 
 import Service from "./pages/Service/Service";
 import ContactUs from "./pages/ContactUs/ContactUs";
 import AboutUs from "./pages/AboutUs/AboutUs";
-import Navlink from "./components/Navlink/Navlink";
 import BookingService from "./pages/Service/BookingService";
 import Profile from "./pages/Profile/Profile";
 import DashBoard from "./pages/DashBoard/DashBoard";
@@ -39,59 +37,28 @@ import BookingProduct from "./components/DashBoard/ProductManage.jsx/BookingProd
 import QR from "./pages/QR/QR";
 import AddProduct from "./components/DashBoard/ProductManage.jsx/AddProduct";
 import SearchResult from "./components/PageProduct/SearchResult";
+import SecondForm from "./components/FormComponents/SecondForm";
+import FirstForm from "./components/FormComponents/FirstForm";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import Staff from "./components/DashBoard/Staff"
 
 const App = () => {
   const [showNavbarAndFooter, setShowNavbarAndFooter] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    const routes = [
-      "/",
-      "/service",
-      "/about-us",
-      "/contact-us",
-      "/cart",
-      "/order",
-      "/login",
-      "/register",
-      "/product",
-      "/booking",
-      "/profile",
-      "/checkout",
-      "/productdisplay/:productName",
-      "/dashboard/*",
-      "/payment-success",
-      "/booking-history",
-      "/order-service",
-      "/qr",
-      "/layout",
-      "/layout/dashboards",
-      "/layout/add-order/:orderId",
-      "/layout/service-info",
-      "/layout/add-service",
-      "/layout/edit-service/:servicesId",
-      "/layout/view-service",
-      "/layout/account-info",
-      "/layout/product-info",
-      "/layout/add-product",
-      "/layout/booking-product",
-      "/search"
+    const routesToHideNavbar = ["/dashboard", "/layout"];
+    const isLayoutOrDashboardRoute = routesToHideNavbar.some(route =>
+      location.pathname.startsWith(route)
+    );
 
-    ];
-
-    const isMatched = routes.some((route) => matchPath(route, location.pathname));
-    setShowNavbarAndFooter(isMatched);
+    setShowNavbarAndFooter(!isLayoutOrDashboardRoute);
   }, [location.pathname]);
 
   return (
     <>
       <div className="app">
-        {showNavbarAndFooter && (
-          <>
-            <Navlink />
-            <Navbar />
-          </>
-        )}
+        {showNavbarAndFooter && <Navbar />}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/service" element={<Service />} />
@@ -102,7 +69,9 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/product" element={<Product />} />
+          <Route path="/first-form" element={<FirstForm />} />
           <Route path="/booking" element={<BookingService />} />
+          <Route path="/second-form" element={<SecondForm />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
@@ -111,32 +80,31 @@ const App = () => {
           <Route path="/qr" element={<QR />} />
           <Route path="/productdisplay/:productId" element={<ProductDisplay />} />
           <Route path="/search" element={<SearchResult />} />
+          <Route path="/forgot-password" element={<ForgotPassword/>}/>
 
           <Route path="/layout" element={<Layout />}>
-            <Route path="/layout/dashboards" element={<Dashboards />} />
-            <Route path="/layout/add-order/:orderId" element={<AddOrder />} />
-            <Route path="/layout/service-info" element={<GetService />} />
-            <Route path="/layout/add-service" element={<AddService />} />
-            <Route path="/layout/edit-service/:servicesId" element={<EditService />} />
-            <Route path="/layout/view-service" element={<ViewService />} />
-            <Route path="/layout/account-info" element={<User />} />
-            <Route path="/layout/product-info" element={<GetProduct />} />
-            <Route path="/layout/add-product" element={<AddProduct />} />
-            <Route path="/layout/booking-product" element={<BookingProduct />} />
+            <Route path="dashboards" element={<Dashboards />} />
+            <Route path="add-order/:orderId" element={<AddOrder />} />
+            <Route path="service-info" element={<GetService />} />
+            <Route path="add-service" element={<AddService />} />
+            <Route path="edit-service/:servicesId" element={<EditService />} />
+            <Route path="view-service" element={<ViewService />} />
+            <Route path="account-info" element={<User />} />
+            <Route path="product-info" element={<GetProduct />} />
+            <Route path="add-product" element={<AddProduct />} />
+            <Route path="booking-product" element={<BookingProduct />} />
+            <Route path="staff" element={<Staff/>}/> 
           </Route>
-
-          {/* DashBoard */}
-          <Route path="/dashboard/*" element={<DashBoard />} />
+          
+          <Route path="/layout/dashboards" element={<DashBoard />} />
 
           {/* Đường dẫn không khớp */}
           <Route path="*" element={<NotFound />} />
+
         </Routes>
+       
       </div>
-      {showNavbarAndFooter && (
-        <div className="bg-gray-700">
-          <Footer />
-        </div>
-      )}
+      {showNavbarAndFooter && <div className="bg-gray-700"></div>}
     </>
   );
 };
