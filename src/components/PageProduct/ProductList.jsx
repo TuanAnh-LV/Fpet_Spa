@@ -9,13 +9,14 @@ import { ChevronDownIcon, FunnelIcon } from '@heroicons/react/20/solid';
 import { getAllProduct, getProductsByCategory } from '../../api/apiService';
 import { ShopContext } from '../Context/ShopContext';
 import { Link } from 'react-router-dom';
-import '../PageProduct/ProductList.css';
+
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+
+// function classNames(...classes) {
+//   return classes.filter(Boolean).join(' ');
+// }
 
 const subCategories = [
   { name: 'Dog Food', value: 'Dog Food' },
@@ -41,7 +42,7 @@ export default function ProductList() {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 12;
   const [sortOrder, setSortOrder] = useState('default');
-  const productsSectionRef = useRef(null); // Thêm ref này
+  const productsSectionRef = useRef(null);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -125,7 +126,7 @@ export default function ProductList() {
   };
 
   return (
-    <div className="product-bg-white" ref={productsSectionRef}> {/* Thêm ref này */}
+    <div className="product-bg-white" ref={productsSectionRef}>
       <div>
         {/* Mobile filter dialog */}
         <Dialog open={mobileFiltersOpen} onClose={setMobileFiltersOpen} className="relative z-40 lg:hidden">
@@ -134,7 +135,7 @@ export default function ProductList() {
           <div className="fixed inset-0 z-40 flex">
             <DialogPanel className="relative ml-auto flex h-full w-full max-w-xs transform flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl transition duration-300 ease-in-out data-[closed]:translate-x-full">
               <div className="flex items-center justify-between px-4">
-                <h2 className="text-lg font-medium text-gray-900">Filters</                h2>
+                <h2 className="text-lg font-medium text-gray-900">Filters</h2>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}
@@ -262,9 +263,6 @@ export default function ProductList() {
                                 <p className={`mt-2 ${product?.productQuantity > 0 ? 'text-green-500' : 'text-red-500'}`}>
                                   {product?.productQuantity > 0 ? 'Stocking' : 'Out of Stock'}
                                 </p>
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-gray-800">Quantity: {product?.productQuantity || 'Unknown Product'}</h4>
                               </div>
                               <div className="flex justify-between items-center mt-3">
                                 <span className="ordernow-text text-[#d13a3a] font-semibold group-hover:text-gray-800">${product?.price}</span>

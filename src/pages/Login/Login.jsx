@@ -5,7 +5,6 @@ import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { assets } from "../../assets/assets";
-import './Login.css'; 
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { loginStart, loginSuccess, loginFailed } from "../../redux/authSlice";
@@ -26,7 +25,7 @@ function Login() {
     const handleGoogleLogin = async (accessToken) => {
         dispatch(loginStart());
         try {
-            const response = await axios.post(`https://fpetspa.azurewebsites.net/api/account/GoogleResponse?accessToken=${accessToken}`);
+            const response = await axios.post(`https://localhost:7055/api/account/GoogleResponse?accessToken=${accessToken}`);
             const { fullName, accessToken: apiAccessToken, refreshToken } = response.data;
             const decodedToken = jwtDecode(apiAccessToken);
             const userId = decodedToken["jti"];
@@ -200,7 +199,6 @@ function Login() {
                             </button>
                             <ToastContainer position="top-right" autoClose={3000} hideProgressBar newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
                         </form>
-                    
                 </div>
                 {isForgotPassword &&(
                         <ForgotPassword onBackToSignIn={() => setIsForgotPassword(false)} />

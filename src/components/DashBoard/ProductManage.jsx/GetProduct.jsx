@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import UpdateProduct from "./UpdateProduct";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import DeleteIcon from '@mui/icons-material/Delete';
+import UpdateIcon from '@mui/icons-material/Update';
+import ViewIcon from '@mui/icons-material/Visibility';
 
 const GetProduct = () => {
   const [products, setProducts] = useState([]);
@@ -10,14 +15,22 @@ const GetProduct = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const productsPerPage = 3;
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const productsPerPage = 4;
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "https://fpetspa.azurewebsites.net/api/products?pageSize=100"
+        "https://localhost:7055/api/products?pageSize=100"
       );
-      setProducts(response.data);
+
+      const sortedProducts = response.data.sort((a, b) => {
+        const aNumber = parseInt(a.productId.replace(/[^\d]/g, ''), 10);
+        const bNumber = parseInt(b.productId.replace(/[^\d]/g, ''), 10);
+        return aNumber - bNumber;
+      });
+
+      setProducts(sortedProducts);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -42,20 +55,29 @@ const GetProduct = () => {
     if (!confirmed) return;
 
     try {
-      await axios.delete(`https://fpetspa.azurewebsites.net/api/products/${productId}`);
+      await axios.delete(`https://localhost:7055/api/products/${productId}`);
       setProducts((prevProducts) =>
         prevProducts.filter((product) => product.productId !== productId)
       );
-      alert('Product removed successfully!');
+      toast.success('Product removed successfully!');
     } catch (error) {
       console.error("Error removing product:", error);
-      alert('Failed to remove product.');
+      toast.error('Failed to remove product.');
     }
+  };
+
+  const handleViewDetail = (productId) => {
+    const productToView = products.find(
+      (product) => product.productId === productId
+    );
+    setSelectedProduct(productToView);
+    setShowDetailModal(true);
   };
 
   const closeModal = () => {
     setSelectedProduct(null);
     setShowModal(false);
+    setShowDetailModal(false);
   };
 
   const handleProductUpdate = (updatedProduct) => {
@@ -64,6 +86,7 @@ const GetProduct = () => {
         product.productId === updatedProduct.productId ? updatedProduct : product
       )
     );
+    setShowModal(false);
   };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -103,12 +126,9 @@ const GetProduct = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product 
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Quantity
                 </th>
@@ -136,12 +156,9 @@ const GetProduct = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {product.productName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.categoryName}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {product.productDescription}
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.productQuantity}
                   </td>
@@ -152,12 +169,17 @@ const GetProduct = () => {
                     <button
                       onClick={() => handleUpdate(product.productId)}
                       className="text-indigo-600 hover:text-indigo-900">
-                      Edit
+                      <UpdateIcon/> /
                     </button>
                     <button
                       onClick={() => handleRemove(product.productId)}
                       className="ml-2 text-red-600 hover:text-red-900">
-                      Remove
+                      <DeleteIcon/> /
+                    </button>
+                    <button
+                      onClick={() => handleViewDetail(product.productId)}
+                      className="ml-2 text-blue-600 hover:text-blue-900">
+                      <ViewIcon />
                     </button>
                   </td>
                 </tr>
@@ -191,18 +213,18 @@ const GetProduct = () => {
 
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-center ml-60 min-h-screen">
+          <div className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
-            <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all max-w-6xl w-full">
-              <div className="bg-white px-4 pt-0 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex justify-center sm:items-center">
+            <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all max-w-6xl w-full mx-auto">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">            
-                      <UpdateProduct
-                        product={selectedProduct}
-                        closeModal={closeModal}
-                        onUpdate={handleProductUpdate}
-                      />
+                    <UpdateProduct
+                      product={selectedProduct}
+                      closeModal={closeModal}
+                      onUpdate={handleProductUpdate}
+                    />
                   </div>
                 </div>
               </div>
@@ -218,6 +240,47 @@ const GetProduct = () => {
           </div>
         </div>
       )}
+
+      {showDetailModal && selectedProduct && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+            <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all max-w-6xl w-full mx-auto">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Product Details
+                    </h3>
+                    <div className="mt-2">
+                    <div className="mt-4">
+                        <img src={selectedProduct.pictureName} alt={selectedProduct.productName} className="w-64 h-64 object-cover ml-96 " />
+                      </div>
+                      <p><strong>Product Name:</strong> {selectedProduct.productName}</p>
+                      <p><strong>Category:</strong> {selectedProduct.categoryName}</p>
+                      <p><strong>Quantity:</strong> {selectedProduct.productQuantity}</p>
+                      <p><strong>Price:</strong> ${selectedProduct.price}</p>
+                      <p><strong>Description:</strong> {selectedProduct.productDescription}</p>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={closeModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer />
     </div>
   );
 };
